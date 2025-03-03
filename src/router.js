@@ -7,7 +7,8 @@ import MealPlan from "./views/MealPlan.vue";
 import ExercisePlan from "./views/ExercisePlan.vue";
 import SmartAssistant from "./views/SmartAssistant.vue";
 import Landing from "./views/Landing.vue";
-
+import Login from "./views/Login.vue";
+import Register from "./views/Register.vue";
 
 Vue.use(Router);
 
@@ -16,6 +17,8 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     { path: "/", component: Landing },
+    { path: "/login", component: Login },  // ✅ 添加登录页面路由
+    { path: "/register", component: Register },  // ✅ 添加注册页面路由
     {
       path: "/home",
       component: Home,
@@ -27,5 +30,6 @@ export default new Router({
         { path: "assistant", component: SmartAssistant },
       ],
     },
-  ]
+    { path: "*", redirect: "/" }, // ✅ 处理未匹配路由，跳转到首页
+  ],
 });
