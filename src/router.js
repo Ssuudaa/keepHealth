@@ -10,7 +10,7 @@ import ExercisePlan from "./views/ExercisePlan.vue";
 import SmartAssistant from "./views/SmartAssistant.vue";
 
 // 管理员端页面
-import Admin from "./views/Admin.vue";
+import Admin from "@/views/Admin.vue";
 import UserManagement from "./views/UserManagement.vue";
 import KnowledgeSettings from "./views/KnowledgeSettings.vue";
 import MealPublishing from "./views/MealPublishing.vue";

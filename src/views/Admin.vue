@@ -110,7 +110,7 @@
     align-items: center;
     color: white;
     text-decoration: none;
-    padding: 12px;
+    padding: 30px;
     transition: 0.3s;
     width: 80%;
     justify-content: flex-start;
