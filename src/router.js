@@ -1,11 +1,23 @@
 import Vue from "vue";
 import Router from "vue-router";
+
+// 用户端页面
 import Home from "./views/Home.vue";
 import DataAnalysis from "./views/DataAnalysis.vue";
 import HealthKnowledge from "./views/HealthKnowledge.vue";
 import MealPlan from "./views/MealPlan.vue";
 import ExercisePlan from "./views/ExercisePlan.vue";
 import SmartAssistant from "./views/SmartAssistant.vue";
+
+// 管理员端页面
+import Admin from "./views/Admin.vue";
+import UserManagement from "./views/UserManagement.vue";
+import KnowledgeSettings from "./views/KnowledgeSettings.vue";
+import MealPublishing from "./views/MealPublishing.vue";
+import ExerciseConfig from "./views/ExerciseConfig.vue";
+import AssistantConfig from "./views/AssistantConfig.vue";
+
+// 公共页面
 import Landing from "./views/Landing.vue";
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
@@ -17,8 +29,10 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     { path: "/", component: Landing },
-    { path: "/login", component: Login },  // ✅ 添加登录页面路由
-    { path: "/register", component: Register },  // ✅ 添加注册页面路由
+    { path: "/login", component: Login }, // ✅ 登录页面
+    { path: "/register", component: Register }, // ✅ 注册页面
+
+    // 用户端路由
     {
       path: "/home",
       component: Home,
@@ -30,6 +44,20 @@ export default new Router({
         { path: "assistant", component: SmartAssistant },
       ],
     },
-    { path: "*", redirect: "/" }, // ✅ 处理未匹配路由，跳转到首页
+
+    // 管理员端路由
+    {
+      path: "/admin",
+      component: Admin,
+      children: [
+        { path: "users", component: UserManagement },
+        { path: "knowledge", component: KnowledgeSettings },
+        { path: "meal", component: MealPublishing },
+        { path: "exercise", component: ExerciseConfig },
+        { path: "assistant", component: AssistantConfig },
+      ],
+    },
+
+    { path: "*", redirect: "/" }, // ✅ 处理 404，未匹配的路径跳转到首页
   ],
 });
