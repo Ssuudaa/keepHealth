@@ -1,6 +1,13 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
+import DataAnalysis from "./views/DataAnalysis.vue";
+import HealthKnowledge from "./views/HealthKnowledge.vue";
+import MealPlan from "./views/MealPlan.vue";
+import ExercisePlan from "./views/ExercisePlan.vue";
+import SmartAssistant from "./views/SmartAssistant.vue";
+import Landing from "./views/Landing.vue";
+
 
 Vue.use(Router);
 
@@ -8,19 +15,17 @@ export default new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
+    { path: "/", component: Landing },
     {
-      path: "/",
-      name: "home",
-      component: Home
+      path: "/home",
+      component: Home,
+      children: [
+        { path: "data", component: DataAnalysis },
+        { path: "knowledge", component: HealthKnowledge },
+        { path: "meal", component: MealPlan },
+        { path: "exercise", component: ExercisePlan },
+        { path: "assistant", component: SmartAssistant },
+      ],
     },
-    {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "about" */ "./views/About.vue")
-    }
   ]
 });
