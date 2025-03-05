@@ -1,6 +1,6 @@
 <template>
     <div class="no-function">
-      <p>暂无功能，敬请期待</p>
+      <p>欢迎使用xx健康管理系统</p>
     </div>
   </template>
   

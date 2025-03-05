@@ -16,7 +16,7 @@
       </div>
   
       <!-- 确认弹窗 -->
-      <el-dialog title="确认设定" :visible.sync="dialogVisible" width="30%">
+      <el-dialog title="确认设定" :visible.sync="dialogVisible" width="30%" >
         <p>是否设定 "{{ selectedPlan.title }}" 为你的运动计划？</p>
         <span slot="footer">
           <el-button @click="dialogVisible = false">取消</el-button>

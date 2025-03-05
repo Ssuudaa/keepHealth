@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="user">
     <!-- 侧边导航栏 -->
     <aside :class="['sidebar', { collapsed: isCollapsed }]">
       <div class="logo">
@@ -7,23 +7,23 @@
       </div>
 
       <nav>
-        <router-link to="/home/data">
+        <router-link to="/user/data">
           <i class="el-icon-data-line"></i>
           <span v-show="!isCollapsed">健康分析</span>
         </router-link>
-        <router-link to="/home/knowledge">
+        <router-link to="/user/knowledge">
           <i class="el-icon-notebook-2"></i>
           <span v-show="!isCollapsed">养生知识</span>
         </router-link>
-        <router-link to="/home/meal">
+        <router-link to="/user/meal">
           <i class="el-icon-food"></i>
           <span v-show="!isCollapsed">膳食计划</span>
         </router-link>
-        <router-link to="/home/exercise">
+        <router-link to="/user/exercise">
           <i class="el-icon-soccer"></i>
           <span v-show="!isCollapsed">运动计划</span>
         </router-link>
-        <router-link to="/home/assistant">
+        <router-link to="/user/assistant">
           <i class="el-icon-cpu"></i>
           <span v-show="!isCollapsed">智能助手</span>
         </router-link>
@@ -37,13 +37,25 @@
 
     <!-- 主要内容区域 -->
     <main class="content">
-      <router-view></router-view>
+      <!-- 顶部导航栏 -->
+      <Header />
+      <!-- 主要内容 -->
+      <router-view>
+      </router-view>
+      
     </main>
   </div>
 </template>
 
+
+
 <script>
+import Header from '@/views/Header.vue';
+
 export default {
+  components: {
+    Header,  // 注册 Header 组件
+  },
   data() {
     return {
       isCollapsed: false, // 是否折叠
@@ -59,7 +71,7 @@ export default {
 
 <style scoped>
 /* 页面整体布局 */
-.home {
+.user {
   display: flex;
   height: 100vh;
 }
@@ -154,6 +166,38 @@ nav i {
 /* 主要内容 */
 .content {
   flex: 1;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+    background-image:url('../assets/backgroundImage.png');
+    background-size: cover;  /* 使背景图片覆盖整个页面 */
+    background-position: center center;  /* 让背景图片居中 */
+    background-repeat: no-repeat;  /* 防止背景图片重复 */
+}
+
+/* 顶部导航栏 */
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-left {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 10px;
 }
 </style>

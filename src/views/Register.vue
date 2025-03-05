@@ -20,7 +20,7 @@
     methods: {
       register() {
         alert("注册成功！");
-        this.$router.push("/home");
+        this.$router.push("/login");
       },
       goToLogin() {
         this.$router.push("/login");

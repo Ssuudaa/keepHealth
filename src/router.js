@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 
 // 用户端页面
-import Home from "./views/Home.vue";
+import User from "./views/User.vue";
 import DataAnalysis from "./views/DataAnalysis.vue";
 import HealthKnowledge from "./views/HealthKnowledge.vue";
 import MealPlan from "./views/MealPlan.vue";
@@ -21,6 +21,7 @@ import AssistantConfig from "./views/AssistantConfig.vue";
 import Landing from "./views/Landing.vue";
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
+import Welcome from "./views/Welcome.vue"
 
 Vue.use(Router);
 
@@ -34,9 +35,10 @@ export default new Router({
 
     // 用户端路由
     {
-      path: "/home",
-      component: Home,
+      path: "/user",
+      component: User,
       children: [
+        { path: '', component: Welcome },
         { path: "data", component: DataAnalysis },
         { path: "knowledge", component: HealthKnowledge },
         { path: "meal", component: MealPlan },
@@ -50,6 +52,7 @@ export default new Router({
       path: "/admin",
       component: Admin,
       children: [
+        { path: '', component: Welcome },
         { path: "users", component: UserManagement },
         { path: "knowledge", component: KnowledgeSettings },
         { path: "meal", component: MealPublishing },
