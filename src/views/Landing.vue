@@ -5,8 +5,8 @@
       您的浏览器不支持视频标签。
     </video>
     <div class="content">
-      <h1>欢迎来到使用XX健康管理系统</h1>
-      <p>您的健康管理助手</p>
+      <h1>欢迎来到使用AI养生管理系统</h1>
+      <p>您的养生管理助手</p>
       <button @click="startExperience" round>登录/注册</button>
     </div>
   </div>

@@ -1,7 +1,8 @@
 <template>
     <header class="top-navbar">
       <div class="navbar-left">
-        <span>XX健康管理系统</span>
+        <img src="../assets/logo.png" alt="Logo" style="width: 30px; height: 26px; vertical-align: middle; margin-right: 5px;">
+        <span style="font-family: 'SimHei', sans-serif; font-size: 20px;vertical-align: middle;">养生管理系统</span>
         <el-button style="margin-left: 20px;" type="danger" @click="gotouser">点击跳转到user页面，测试用</el-button>
         <el-button style="margin-left: 20px;" type="danger" @click="gotoadmin">点击跳转到admin页面，测试用</el-button>
       </div>
