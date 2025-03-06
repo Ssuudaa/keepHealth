@@ -19,7 +19,7 @@
     methods: {
       login() {
         alert("登录成功！");
-        this.$router.push("/user");
+        this.$router.push("/user/data");
       },
       goToRegister() {
         this.$router.push("/register");

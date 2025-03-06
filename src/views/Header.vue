@@ -30,7 +30,7 @@
     },
     methods: {
      gotouser(){
-      this.$router.push("/user");
+      this.$router.push("/user/data");
      },
      loginOut(){
       this.$router.push("/");
@@ -39,7 +39,7 @@
       this.$router.push("/user/data");
      },
      gotoadmin(){
-      this.$router.push("/admin");
+      this.$router.push("/admin/users");
 
     },
     },
