@@ -155,6 +155,8 @@
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
+    overflow-y: auto; /* 允许纵向滚动 */
+    max-height: 400px;
   }
   
   .message {
