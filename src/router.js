@@ -8,6 +8,9 @@ import HealthKnowledge from "./views/HealthKnowledge.vue";
 import MealPlan from "./views/MealPlan.vue";
 import ExercisePlan from "./views/ExercisePlan.vue";
 import SmartAssistant from "./views/SmartAssistant.vue";
+import UserExerciseConfig from "./views/UserExerciseConfig.vue"
+import UserMealPublishing from "./views/UserMealPublishing.vue"
+
 
 // 管理员端页面
 import Admin from "@/views/Admin.vue";
@@ -42,7 +45,9 @@ export default new Router({
         { path: "data", component: DataAnalysis },
         { path: "knowledge", component: HealthKnowledge },
         { path: "meal", component: MealPlan },
+        { path: "setMeal", component: UserMealPublishing },
         { path: "exercise", component: ExercisePlan },
+        { path: "setExercise", component: UserExerciseConfig },
         { path: "assistant", component: SmartAssistant },
       ],
     },
