@@ -51,14 +51,26 @@
 
     <!-- 右上角按钮 -->
     <div class="action-buttons">
-      <el-button type="danger" @click="goToUserExercise">添加自定义计划</el-button>
+      <el-button type="danger" @click="openExerciseDialog">添加自定义计划</el-button>
       <!-- <el-button type="success" @click="checkInDaily">计划每天打卡</el-button> -->
     </div>
+    
+     <!-- 运动计划选择组件 -->
+     <SelectExercisePlan 
+      ref="selectExercisePlan"
+      :categories="exerciseCategories"
+      @add-plan="handleAddPlan"
+    />
   </div>
 </template>
 
 <script>
+import SelectExercisePlan from "@/components/SelectExercisePlan.vue"; 
+
 export default {
+  components: {
+    SelectExercisePlan, // 注册组件
+  },
   data() {
     return {
       dialogVisible: false,
@@ -72,7 +84,26 @@ export default {
         { title: "深蹲 & 硬拉", description: "下半身力量训练，增强肌肉耐力。", category: "力量训练" },
         { title: "瑜伽拉伸", description: "每天 20 分钟瑜伽，提高柔韧性和放松身心。", category: "瑜伽拉伸" }
       ],
-      myPlans: [] // 存储用户选择的计划
+      myPlans: [], // 存储用户选择的计划
+      exerciseCategories: [
+      { 
+    name: "有氧训练", 
+    sports: [
+      { name: "游泳", logo: "require('@/assets/avatar.png')" },
+      { name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },
+      { name: "跑步", logo: "require('@/assets/logo.png')" }
+      
+      
+    ] 
+  },
+  { 
+    name: "无氧训练", 
+    sports: [
+      { name: "深蹲", logo: "./assets/avatar.png" },
+      { name: "硬拉", logo: "/assets/avatar.png" }
+    ] 
+  }
+      ]
     };
   },
   computed: {
@@ -108,12 +139,19 @@ export default {
       this.myPlans = this.myPlans.filter(p => p !== plan);
       this.$message.warning(`已移除 "${plan.title}"`);
     },
-    goToUserExercise() {
-      this.$router.push("/user/setExercise")
-    },
+    // goToUserExercise() {
+    //   this.$router.push("/user/setExercise")
+    // },
     checkInDaily() {
       console.log("计划每天打卡");
       // 这里可以添加每天打卡的功能
+    },
+    openExerciseDialog() {
+      this.$refs.selectExercisePlan.dialogVisible = true;
+    },
+    handleAddPlan(plan) {
+      this.myPlans.push({ title: plan.sport, description: plan.description });
+      this.$message.success(`已添加 "${plan.sport}" 计划`);
     }
   }
 };
