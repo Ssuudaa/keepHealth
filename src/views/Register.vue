@@ -42,6 +42,10 @@ export default {
         alert("密码长度必须是6到32个字！");
         return;
       }
+      if (this.password !== this.confirmPassword) {
+        alert("两次输入的密码不一致！");
+        return;
+      }
 
       try {
         const response = await api.post("/user/signup", {
@@ -49,7 +53,7 @@ export default {
           password: this.password,
         });
 
-        if (response.data.code === 200) {
+        if (response.code === 200) {
           alert("注册成功！");
           this.$router.push("/login");
         } else {

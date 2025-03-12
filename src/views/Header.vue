@@ -19,12 +19,12 @@
         "
         >养生管理系统</span
       >
-      <el-button style="margin-left: 20px" type="danger" @click="gotouser"
+      <!-- <el-button style="margin-left: 20px" type="danger" @click="gotouser"
         >点击跳转到user页面，测试用</el-button
       >
       <el-button style="margin-left: 20px" type="danger" @click="gotoadmin"
         >点击跳转到admin页面，测试用</el-button
-      >
+      > -->
     </div>
     <div class="navbar-right">
       <el-avatar size="small" :src="require('@/assets/avatar.png')"></el-avatar>
