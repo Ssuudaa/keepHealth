@@ -23,22 +23,7 @@
         </div>
       </div>
     </el-dialog>
-    
-    <!-- 添加计划弹窗 -->
-    <el-dialog title="添加计划" :visible.sync="planDialogVisible" width="30%">
-      <el-form>
-        <el-form-item label="计划名称">
-          <el-input v-model="planName" placeholder="输入计划名称"></el-input>
-        </el-form-item>
-        <el-form-item label="计划描述">
-          <el-input v-model="planDescription" type="textarea" placeholder="输入计划描述"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer">
-        <el-button @click="planDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="addPlan">确定</el-button>
-      </div>
-    </el-dialog>
+
   </div>
 </template>
 

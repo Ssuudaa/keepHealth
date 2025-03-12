@@ -10,9 +10,9 @@ const api = axios.create({
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('jwt_token');  // 获取存储的 Token
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;  // 设置 Authorization 请求头
+    config.headers['Authorization'] = `${token}`;  // 设置 Authorization 请求头
   }
-  console.log('请求发送:', config);  // 可以打印请求信息
+  // console.log('请求发送:', config);  // 可以打印请求信息
   return config;
 }, error => {
   return Promise.reject(error);
@@ -22,7 +22,7 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(response => {
   return response.data;  // 直接返回数据，简化后续处理
 }, error => {
-  console.error('请求错误:', error);
+  // console.error('请求错误:', error);
 
   // 如果 Token 过期或认证失败，处理 401 错误
   if (error.response && error.response.status === 401) {
