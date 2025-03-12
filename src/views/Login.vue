@@ -9,7 +9,9 @@
       <input v-model="username" type="text" placeholder="用户名" />
       <input v-model="password" type="password" placeholder="密码" />
       <button @click="login">登录</button>
-      <p class="switch">还没有账号？<span @click="goToRegister">去注册</span></p>
+      <p class="switch">
+        还没有账号？<span @click="goToRegister">去注册</span>
+      </p>
     </div>
   </div>
 </template>
@@ -21,45 +23,53 @@ export default {
   data() {
     return {
       username: "",
-      password: ""
+      password: "",
     };
   },
   methods: {
     async login() {
-  try {
-    const response = await api.post("/user/login", {
-      username: this.username,
-      password: this.password,
-    });
-    if (response.code === 200) {
-      const token = response.data.token;
-      localStorage.setItem("jwt_token", token);
-      console.log("Token:", token);
-
-      // ✅ 等待 checkRole() 获取用户角色
-      const role = await this.checkRole();
-      console.log("Role:", role);
-      if (role !== null) {
-        localStorage.setItem("user_role", role);
-        alert("登录成功！");
-        if (role === 0) {
-          this.$router.push("/user/data");
-        } else if (role === 1) {
-          this.$router.push("/admin/users");
+      try {
+        if (!this.username) {
+          alert("用户名不能为空");
+          return;
         }
+        if (!this.password) {
+          alert("密码不能为空");
+          return;
+        }
+        const response = await api.post("/user/login", {
+          username: this.username,
+          password: this.password,
+        });
+        if (response.code === 200) {
+          const token = response.data.token;
+          localStorage.setItem("jwt_token", token);
+          console.log("Token:", token);
+
+          // ✅ 等待 checkRole() 获取用户角色
+          const role = await this.checkRole();
+          console.log("Role:", role);
+          if (role !== null) {
+            localStorage.setItem("user_role", role);
+            alert("登录成功！");
+            if (role === 0) {
+              this.$router.push("/user/data");
+            } else if (role === 1) {
+              this.$router.push("/admin/users");
+            }
+          }
+        } else {
+          alert(response.data.msg || "登录失败，请检查用户名和密码");
+        }
+      } catch (error) {
+        console.error("登录失败:", error);
+        alert(error.response.data.msg);
       }
-    } else {
-      alert(response.data.msg || "登录失败，请检查用户名和密码");
-    }
-  } catch (error) {
-    console.error("登录失败:", error);
-    alert(error.response.data.msg);
-  }
-},
+    },
 
     async checkRole() {
       try {
-        const response = await api.get("/user/info")
+        const response = await api.get("/user/info");
 
         if (response.code === 200) {
           return response.data.role; // ✅ 直接返回 role
@@ -74,8 +84,8 @@ export default {
     },
     goToRegister() {
       this.$router.push("/register");
-    }
-  }
+    },
+  },
 };
 </script>
 
