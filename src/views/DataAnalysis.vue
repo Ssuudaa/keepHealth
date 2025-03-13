@@ -1,130 +1,99 @@
 <template>
   <div class="app-container">
-    <!-- 个人信息卡片 -->
-    <div class="info-card">
-      <h2>个人信息</h2>
-      <div v-if="personalInfo.name" class="info-details">
-        <div class="info-item">
-          <strong>姓名：</strong> {{ personalInfo.name }}
-        </div>
-        <div class="info-item">
-          <strong>身高：</strong> {{ personalInfo.height }} cm
-        </div>
-        <div class="info-item">
-          <strong>体重：</strong> {{ personalInfo.weight }} kg
-        </div>
-        <div class="info-item">
-          <strong>年龄：</strong> {{ personalInfo.age }} 岁
-        </div>
-        <div class="info-item">
-          <strong>性别：</strong> {{ personalInfo.gender }}
-        </div>
-        <div class="btn-container">
-          <button @click="editInfo" class="btn">修改个人信息</button>
-        </div>
+    <!-- 个人信息、运动计划、膳食计划 ListCard -->
+    <div class="cards-container">
+      <div class="list-card">
+        <h3>个人信息</h3>
+        <ul>
+          <li><strong>姓名：</strong> {{ personalInfo.name }}</li>
+          <li><strong>身高：</strong> {{ personalInfo.height }} cm</li>
+          <li><strong>体重：</strong> {{ personalInfo.weight }} kg</li>
+          <li><strong>年龄：</strong> {{ personalInfo.age }} 岁</li>
+          <li><strong>性别：</strong> {{ personalInfo.gender }}</li>
+        </ul>
+        <el-button @click="editInfo" type="danger" class="btn">修改信息</el-button>
       </div>
-      <!-- 如果没有个人信息，显示提示和添加按钮 -->
-      <div v-else>
-        <p style="  text-align: center;">当前暂无个人信息，请添加</p>
-        <div class="btn-container">
-          <button @click="addInfo" class="btn">添加个人信息</button>
-        </div>
+
+      <div class="list-card">
+        <h3>运动计划</h3>
+        <ul>
+          <li>每天跑步 30 分钟</li>
+          <li>每周健身 3 次</li>
+          <li>瑜伽放松</li>
+        </ul>
+        <el-button type="primary" class="btn">查看详情</el-button>
+      </div>
+
+      <div class="list-card">
+        <h3>膳食计划</h3>
+        <ul>
+          <li>早餐：燕麦 + 牛奶</li>
+          <li>午餐：鸡胸肉 + 蔬菜</li>
+          <li>晚餐：低碳水饮食</li>
+        </ul>
+        <el-button type="primary" class="btn">查看详情</el-button>
       </div>
     </div>
 
-    <!-- 弹窗：添加个人信息 -->
-    <el-dialog title="添加个人信息" :visible.sync="isDialogVisible" @close="resetInfo">
-      <el-form :model="personalInfo" ref="form" label-width="100px">
-        <el-form-item label="姓名">
-          <el-input v-model="personalInfo.name"></el-input>
-        </el-form-item>
-        <el-form-item label="身高">
-          <el-input-number v-model="personalInfo.height" :min="0" label="身高" style="width: 100%;"></el-input-number>
-        </el-form-item>
-        <el-form-item label="体重">
-          <el-input-number v-model="personalInfo.weight" :min="0" label="体重" style="width: 100%;"></el-input-number>
-        </el-form-item>
-        <el-form-item label="年龄">
-          <el-input-number v-model="personalInfo.age" :min="0" label="年龄" style="width: 100%;"></el-input-number>
-        </el-form-item>
-        <el-form-item label="性别">
-          <el-select v-model="personalInfo.gender" placeholder="请选择性别">
-            <el-option label="男" value="男"></el-option>
-            <el-option label="女" value="女"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="isDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveInfo">保存</el-button>
-      </div>
-    </el-dialog>
-
+    <!-- 图表展示 -->
     <div class="charts-container">
-        <div class="chart-box">
-          <h3>健康指标统计</h3>
-          <div ref="barChart" class="chart"></div>
-        </div>
-        <div class="chart-box">
-          <h3>健康数据 3D 圆柱图</h3>
-          <div ref="cylinderChart" class="chart"></div>
-        </div>
-        <div class="chart-box">
-          <h3>BMI 比例分布</h3>
-          <div ref="bmiChart" class="chart"></div>
-        </div>
-        <div class="chart-box">
-          <h3>理想体重范围</h3>
-          <div ref="idealWeightChart" class="chart"></div>
-        </div>
+      <div class="chart-box">
+        <h3>健康指标变化</h3>
+        <div ref="lineChart" class="chart"></div>
       </div>
+      <div class="chart-box">
+        <h3>计划打卡日历</h3>
+        <div ref="calendarChart" class="chart"></div>
+      </div>
+      <div class="chart-box">
+        <h3>BMI 比例分布</h3>
+        <div ref="bmiChart" class="chart"></div>
+      </div>
+      <div class="chart-box">
+        <h3>理想体重范围</h3>
+        <div ref="idealWeightChart" class="chart"></div>
+      </div>
+    </div>
   </div>
 </template>
 
-
 <script>
 import * as echarts from "echarts";
-import "echarts-gl";
 export default {
   data() {
     return {
-      // 存储个人信息
       personalInfo: {
-        name: '小明',
+        name: "小明",
         height: 170,
         weight: 70,
         age: 24,
-        gender: '女'
+        gender: "男",
       },
-      isDialogVisible: false, // 弹窗显示控制
     };
   },
   mounted() {
-    this.initBarChart();
-    this.initCylinderChart();
+    this.initLineChart();
+    this.initCalendarChart();
     this.initBmiChart();
     this.initIdealWeightChart();
   },
   methods: {
-    initBarChart() {
-      const chart = echarts.init(this.$refs.barChart);
+    initLineChart() {
+      const chart = echarts.init(this.$refs.lineChart);
       const option = {
-        xAxis: { type: "category", data: ["体重", "身高", "BMI", "脂肪率"] },
+        xAxis: { type: "category", data: ["周一", "周二", "周三", "周四", "周五"] },
         yAxis: { type: "value" },
-        series: [{ type: "bar", data: [70, 175, 22.9, 18], itemStyle: { color: "#4CAF50" } }],
+        series: [{ type: "line", data: [70, 69, 68, 67, 66], itemStyle: { color: "#4CAF50" } }],
       };
       chart.setOption(option);
     },
 
-    initCylinderChart() {
-      const chart = echarts.init(this.$refs.cylinderChart);
+    initCalendarChart() {
+      const chart = echarts.init(this.$refs.calendarChart);
       const option = {
-        xAxis3D: { type: "category", data: ["蛋白质", "脂肪", "碳水"], name: "" },
-        yAxis3D: { type: "category", name: "" },
-        zAxis3D: { type: "value", name: "" },
-        grid3D: { boxWidth: 100, boxDepth: 40 },
-        series: [{ type: "bar3D", data: [[0, 0, 80], [1, 0, 40], [2, 0, 90]], shading: "lambert" }],
+        visualMap: { min: 0, max: 10, inRange: { color: ["#e0f3f8", "#08519c"] } },
+        calendar: { range: "2025", cellSize: [30, 30] },
+        series: [{ type: "heatmap", coordinateSystem: "calendar", data: [["2025-03-10", 5], ["2025-03-11", 8]] }],
       };
       chart.setOption(option);
     },
@@ -132,136 +101,85 @@ export default {
     initBmiChart() {
       const chart = echarts.init(this.$refs.bmiChart);
       const option = {
-        series: [{
-          type: "pie",
-          radius: ["40%", "70%"],
-          data: [
-            { value: 40, name: "正常", itemStyle: { color: "#4CAF50" } },
-            { value: 30, name: "超重", itemStyle: { color: "#FFC107" } },
-            { value: 20, name: "肥胖", itemStyle: { color: "#F44336" } },
-            { value: 10, name: "偏瘦", itemStyle: { color: "#2196F3" } },
-          ],
-        }],
+        tooltip: { trigger: "item" },
+        series: [
+          {
+            type: "pie",
+            radius: "50%",
+            data: [
+              { value: 10, name: "偏瘦" },
+              { value: 40, name: "正常" },
+              { value: 30, name: "超重" },
+              { value: 20, name: "肥胖" },
+            ],
+          },
+        ],
       };
       chart.setOption(option);
     },
 
     initIdealWeightChart() {
       const chart = echarts.init(this.$refs.idealWeightChart);
-      const currentWeight = 70;
-      const idealMin = 60;
-      const idealMax = 75;
-      const outOfRange = currentWeight < idealMin || currentWeight > idealMax;
-
       const option = {
-        series: [{
-          type: "pie",
-          radius: ["40%", "70%"],
-          data: [
-            { value: Math.max(0, currentWeight - idealMin), name: "理想范围", itemStyle: { color: "#4CAF50" } },
-            { value: outOfRange ? Math.abs(currentWeight - idealMax) : 0, name: "超出范围", itemStyle: { color: "#F44336" } },
-          ],
-        }],
+        xAxis: { type: "category", data: ["最低", "当前", "最高"] },
+        yAxis: { type: "value" },
+        series: [{ type: "bar", data: [60, 70, 75], itemStyle: { color: "#FF9800" } }],
       };
       chart.setOption(option);
     },
 
-    // 添加个人信息
-    addInfo() {
-      this.isDialogVisible = true;
-    },
-
-    // 修改个人信息
     editInfo() {
-      this.isDialogVisible = true;
+      alert("编辑个人信息功能开发中...");
     },
-
-    // 保存个人信息
-    saveInfo() {
-      // 保存逻辑
-      this.isDialogVisible = false;
-    },
-
-    // 重置个人信息
-    resetInfo() {
-      this.personalInfo = {
-        name: '',
-        height: null,
-        weight: null,
-        age: null,
-        gender: ''
-      };
-    }
   },
 };
 </script>
 
-
 <style scoped>
 .app-container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  overflow-y: auto; 
-  /* 添加这行，确保容器内容超出时会滚动 */
+  overflow-y: auto;
 }
 
-.info-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   margin-bottom: 20px;
 }
 
-.info-card h2 {
-  margin-bottom: 15px;
+.list-card {
+  position: relative;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height:250px;
+}
+
+h3 {
   text-align: center;
-  font-size: 24px;
-  color: #333;
 }
 
-.info-details {
-  grid-template-columns: 1fr 1fr;
-  display: grid;
-  gap: 10px;
-  text-align: left;
-  width: 100%;
-}
-
-.info-item {
-  font-size: 16px;
-  color: #555;
+ul {
+  list-style: none;
+  padding: 0;
 }
 
 .btn {
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-  width: 200px;
-}
-
-.btn-container {
-  grid-column: span 2; /* 使按钮跨越两列 */
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  margin-top: 20px;
-}
-
-.btn:hover {
-  background-color: #45a049;
+  position: absolute;
+  bottom: 20px; /* 距离底部 20px */
+  left: 50%;
+  transform: translateX(-50%); /* 水平居中 */
+  width: calc(100% - 40px); /* 让按钮宽度与父元素匹配，适当留边距 */
 }
 
 .charts-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  padding: 20px;
 }
 
 .chart-box {
@@ -278,6 +196,7 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .cards-container,
   .charts-container {
     grid-template-columns: 1fr;
   }

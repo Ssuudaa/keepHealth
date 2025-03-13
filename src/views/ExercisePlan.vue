@@ -19,23 +19,25 @@
     <div class="content">
       <h2>💪 运动计划</h2>
 
-      <!-- 推荐计划 -->
-      <h3 class="section-title">🏆 推荐计划</h3>
+      <h3 class="section-title">{{ activeCategory === "推荐计划" ? "🏆 推荐计划" : "📌 我的计划" }}</h3>
       <div class="plan-list">
-        <el-card v-for="(plan, index) in recommendedPlans" :key="index" class="plan-card">
+        <el-card v-for="(plan, index) in displayedPlans" :key="index" class="plan-card">
           <div class="plan-title">{{ plan.title }}</div>
           <p>{{ plan.description }}</p>
-          <el-button type="primary" @click="selectPlan(plan)">设定为我的计划</el-button>
-        </el-card>
-      </div>
-
-      <!-- 我的计划 -->
-      <h3 class="section-title">📌 我的计划</h3>
-      <div class="plan-list">
-        <el-card v-for="(plan, index) in myPlans" :key="index" class="plan-card">
-          <div class="plan-title">{{ plan.title }}</div>
-          <p>{{ plan.description }}</p>
-          <el-button type="danger" @click="removePlan(plan)">移除</el-button>
+          <el-button 
+            v-if="activeCategory === '推荐计划'" 
+            type="primary" 
+            @click="selectPlan(plan)"
+          >
+            设定为我的计划
+          </el-button>
+          <el-button 
+            v-else 
+            type="danger" 
+            @click="removePlan(plan)"
+          >
+            移除
+          </el-button>
         </el-card>
       </div>
   
@@ -52,13 +54,11 @@
     <!-- 右上角按钮 -->
     <div class="action-buttons">
       <el-button type="danger" @click="openExerciseDialog">添加自定义计划</el-button>
-      <!-- <el-button type="success" @click="checkInDaily">计划每天打卡</el-button> -->
     </div>
     
      <!-- 运动计划选择组件 -->
      <SelectExercisePlan 
       ref="selectExercisePlan"
-      :categories="exerciseCategories"
       @add-plan="handleAddPlan"
     />
   </div>
@@ -75,49 +75,21 @@ export default {
     return {
       dialogVisible: false,
       selectedPlan: null,
-      activeCategory: "全部",
-      categories: ["全部", "有氧训练", "力量训练", "瑜伽拉伸"],
+      activeCategory: "推荐计划",
+      categories: ["进行中的计划","推荐计划", "我的计划"],
       plans: [
-        { title: "每日晨跑", description: "每天早晨跑步 30 分钟，提高心肺功能。", category: "有氧训练" },
-        { title: "跳绳训练", description: "每日 15 分钟跳绳，提高协调性与燃脂。", category: "有氧训练" },
-        { title: "健身房力量训练", description: "每周 3 次力量训练，增强肌肉力量。", category: "力量训练" },
-        { title: "深蹲 & 硬拉", description: "下半身力量训练，增强肌肉耐力。", category: "力量训练" },
-        { title: "瑜伽拉伸", description: "每天 20 分钟瑜伽，提高柔韧性和放松身心。", category: "瑜伽拉伸" }
+        { title: "每日晨跑", description: "每天早晨跑步 30 分钟，提高心肺功能。" },
+        { title: "跳绳训练", description: "每日 15 分钟跳绳，提高协调性与燃脂。" },
+        { title: "健身房力量训练", description: "每周 3 次力量训练，增强肌肉力量。" },
+        { title: "深蹲 & 硬拉", description: "下半身力量训练，增强肌肉耐力。" },
+        { title: "瑜伽拉伸", description: "每天 20 分钟瑜伽，提高柔韧性和放松身心。" }
       ],
-      myPlans: [], // 存储用户选择的计划
-      exerciseCategories: [
-      { 
-    name: "有氧训练", 
-    sports: [
-      { name: "游泳", logo: "require('@/assets/avatar.png')" },
-      { name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },{ name: "游泳", logo: "require('@/assets/avatar.png')" },
-      { name: "跑步", logo: "require('@/assets/logo.png')" }
-      
-      
-    ] 
-  },
-  { 
-    name: "无氧训练", 
-    sports: [
-      { name: "深蹲", logo: "./assets/avatar.png" },
-      { name: "硬拉", logo: "/assets/avatar.png" }
-    ] 
-  }
-      ]
+      myPlans: [] // 存储用户选择的计划
     };
   },
   computed: {
-    filteredPlans() {
-      if (this.activeCategory === "全部") {
-        return this.plans;
-      }
-      return this.plans.filter(plan => plan.category === this.activeCategory);
-    },
-    recommendedPlans() {
-      return this.filteredPlans.slice(0, 3); // 只取前三个
-    },
-    myPlans() {
-      return this.filteredPlans.slice(3, 6); // 取 3-6 个
+    displayedPlans() {
+      return this.activeCategory === "推荐计划" ? this.plans : this.myPlans;
     }
   },
   methods: {
@@ -139,13 +111,6 @@ export default {
       this.myPlans = this.myPlans.filter(p => p !== plan);
       this.$message.warning(`已移除 "${plan.title}"`);
     },
-    // goToUserExercise() {
-    //   this.$router.push("/user/setExercise")
-    // },
-    checkInDaily() {
-      console.log("计划每天打卡");
-      // 这里可以添加每天打卡的功能
-    },
     openExerciseDialog() {
       this.$refs.selectExercisePlan.dialogVisible = true;
     },
@@ -162,14 +127,13 @@ export default {
   display: flex;
   height: 100vh;
   overflow-y: auto;
-  position: relative; /* 使右上角按钮可以定位 */
+  position: relative;
 }
 
 .sidebar {
   width: 130px;
-  background: #f5f5f5;
+  background: rgba(91, 185, 200, 0.2);
   padding: 20px;
-  background-color: rgba(91, 185, 200, 0.2);
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -212,7 +176,7 @@ export default {
 
 .plan-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 每行固定 3 列 */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   justify-items: center;
 }
@@ -232,7 +196,6 @@ export default {
   margin-bottom: 10px;
 }
 
-/* 右上角按钮样式 */
 .action-buttons {
   position: absolute;
   top: 20px;
@@ -242,6 +205,6 @@ export default {
 }
 
 .action-buttons .el-button {
-  min-width: 140px; /* 设置按钮最小宽度 */
+  min-width: 140px;
 }
 </style>
