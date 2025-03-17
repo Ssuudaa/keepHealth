@@ -19,37 +19,27 @@
     <div class="content">
       <h2>💪 运动计划</h2>
 
-      <h3 class="section-title">{{ activeCategory === "推荐计划" ? "🏆 推荐计划" : "📌 我的计划" }}</h3>
+      <h3 class="section-title">{{ getCategoryTitle }}</h3>
       <div class="plan-list">
         <el-card v-for="(plan, index) in displayedPlans" :key="index" class="plan-card">
-          <div class="plan-title">{{ plan.title }}</div>
+          <div class="plan-title">{{ plan.EPlanName }}</div>
           <p>{{ plan.description }}</p>
-          <el-button 
-            v-if="activeCategory === '推荐计划'" 
-            type="primary" 
-            @click="selectPlan(plan)"
-          >
-            设定为我的计划
-          </el-button>
-          <el-button 
-            v-else 
-            type="danger" 
-            @click="removePlan(plan)"
-          >
-            移除
-          </el-button>
+          
+          <el-button v-if="activeCategory !== '进行中的计划' && activeCategory !=='推荐计划'" class="list-button" type="primary" @click="editPlan(plan)">编辑</el-button>
+          <el-button v-if="activeCategory !== '进行中的计划' && activeCategory !=='推荐计划'" class="list-button" type="danger" @click="deletePlan(plan)">删除</el-button>
+          <el-button v-if="activeCategory !== '进行中的计划'" class="list-button" type="success" @click="confirmPlan(plan)">设为当前计划</el-button>
         </el-card>
       </div>
-  
-      <!-- 确认弹窗 -->
-      <el-dialog title="确认设定" :visible.sync="dialogVisible" width="30%" >
-        <p>是否设定 "{{ selectedPlan ? selectedPlan.title : '' }}" 为你的运动计划？</p>
-        <span slot="footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmPlan">确认</el-button>
-        </span>
-      </el-dialog>
+
     </div>
+
+    <el-dialog :visible.sync="dialogVisible" title="确认选择" width="40%">
+      <p>你确定要设定<strong>{{ selectedPlan ? selectedPlan.planname : '' }}</strong>为你的运动计划吗？</p>
+      <span slot="footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="setMyPlan">确认</el-button>
+      </span>
+    </el-dialog>
 
     <!-- 右上角按钮 -->
     <div class="action-buttons">
@@ -59,65 +49,132 @@
      <!-- 运动计划选择组件 -->
      <SelectExercisePlan 
       ref="selectExercisePlan"
-      @add-plan="handleAddPlan"
+      @add-plan="fetchPlans"
     />
   </div>
 </template>
 
 <script>
+import api from "@/api";
 import SelectExercisePlan from "@/components/SelectExercisePlan.vue"; 
 
 export default {
   components: {
-    SelectExercisePlan, // 注册组件
+    SelectExercisePlan,
   },
   data() {
     return {
       dialogVisible: false,
+      editDialogVisible: false,
       selectedPlan: null,
-      activeCategory: "推荐计划",
-      categories: ["进行中的计划","推荐计划", "我的计划"],
-      plans: [
-        { title: "每日晨跑", description: "每天早晨跑步 30 分钟，提高心肺功能。" },
-        { title: "跳绳训练", description: "每日 15 分钟跳绳，提高协调性与燃脂。" },
-        { title: "健身房力量训练", description: "每周 3 次力量训练，增强肌肉力量。" },
-        { title: "深蹲 & 硬拉", description: "下半身力量训练，增强肌肉耐力。" },
-        { title: "瑜伽拉伸", description: "每天 20 分钟瑜伽，提高柔韧性和放松身心。" }
-      ],
-      myPlans: [] // 存储用户选择的计划
+      editedPlan: {},
+      activeCategory: "进行中的计划",
+      categories: ["进行中的计划", "推荐计划", "我的计划"],
+      ongoingPlans: [],
+      suggestedPlans: [],
+      myPlans: [],
+      currentPage: 1,
+      pageSize: 6,
+      total: 0,
     };
   },
   computed: {
+    getCategoryTitle() {
+      return this.activeCategory === "推荐计划" ? "🏆 推荐计划" : this.activeCategory === "进行中的计划" ? "⏳ 进行中的计划" : "📌 我的计划";
+    },
     displayedPlans() {
-      return this.activeCategory === "推荐计划" ? this.plans : this.myPlans;
+      return this.activeCategory === "推荐计划" ? this.suggestedPlans : 
+             this.activeCategory === "进行中的计划" ? this.ongoingPlans : 
+             this.myPlans;
     }
   },
   methods: {
+    async fetchPlans() {
+      let apiUrl = "";
+    if (this.activeCategory === "推荐计划") {
+      apiUrl = "/ePlan/getSuggestPlan";
+    } else if (this.activeCategory === "进行中的计划") {
+      apiUrl = "/userCplan/get";
+    } else {
+      apiUrl = "/ePlan/list";
+    }
+    try {
+      const response = await api.get(apiUrl, { params: { pageNum: this.currentPage, pageSize: this.pageSize } });
+      if (this.activeCategory === "推荐计划") {
+        this.suggestedPlans = response.data || [];
+      } else if (this.activeCategory === "进行中的计划") {
+        this.ongoingPlans = [response.data.EPlanVo]
+      }else {
+          this.myPlans = response.rows || [];
+        }
+        this.total = response.total;
+      } catch (error) {
+        console.error("获取计划失败", error);
+      }
+    },
     changeCategory(category) {
       this.activeCategory = category;
+      this.fetchPlans();
     },
-    selectPlan(plan) {
+    async editPlan(plan) {
+  try {
+    const response = await api.get(`/ePlan/getDetail`, { params: { id: plan.id } });
+    this.$refs.selectExercisePlan.openDialog(response.data); // 传递数据到组件
+  } catch (error) {
+    console.error("获取计划详情失败", error);
+    this.$message.error("获取计划详情失败，请重试！");
+  }
+},
+    async setAsCurrentPlan(plan) {
+      try {
+        await api.post("/ePlan/add", { planId: plan.id });
+        this.ongoingPlans.push(plan);
+        this.$message.success(`已设定 "${plan.EPlanName}" 为当前计划！`);
+      } catch (error) {
+        console.error("设定计划失败", error);
+        this.$message.error("设定失败，请重试！");
+      }
+    },
+    async deletePlan(plan) {
+  try {
+    await this.$confirm(`确定要删除 "${plan.EPlanName}" 吗？`, "确认删除", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+
+    await api.delete(`/ePlan/delete/${plan.id}`);
+    this.fetchPlans();
+    this.$message.success("计划已删除！");
+  } catch (error) {
+    if (error !== "cancel") {
+      console.error("删除计划失败", error);
+      this.$message.error("删除失败，请重试！");
+    }
+  }
+},
+    openExerciseDialog() {
+      this.$refs.selectExercisePlan.openDialog(); // 传递数据到组件
+    },
+      confirmPlan(plan) {
       this.selectedPlan = plan;
       this.dialogVisible = true;
     },
-    confirmPlan() {
-      if (!this.myPlans.includes(this.selectedPlan)) {
-        this.myPlans.push(this.selectedPlan);
-      }
-      this.dialogVisible = false;
-      this.$message.success(`已设定 "${this.selectedPlan.title}" 为你的运动计划！`);
-    },
-    removePlan(plan) {
-      this.myPlans = this.myPlans.filter(p => p !== plan);
-      this.$message.warning(`已移除 "${plan.title}"`);
-    },
-    openExerciseDialog() {
-      this.$refs.selectExercisePlan.dialogVisible = true;
-    },
-    handleAddPlan(plan) {
-      this.myPlans.push({ title: plan.sport, description: plan.description });
-      this.$message.success(`已添加 "${plan.sport}" 计划`);
-    }
+    async setMyPlan() {
+  try {
+    await api.put(`/common/setcplanByeplan/${this.selectedPlan.id}`);
+    console.log(this.selectedPlan.id)
+    this.dialogVisible = false;
+    this.$message.success("计划设定成功！");
+    this.fetchPlans();
+  } catch (error) {
+    console.error("设定失败", error);
+    this.$message.error("设定失败，请重试！");
+  }
+},
+  },
+  mounted() {
+    this.fetchPlans();
   }
 };
 </script>
@@ -175,33 +232,30 @@ export default {
 }
 
 .plan-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
-  justify-items: center;
 }
 
 .plan-card {
   width: 250px;
   padding: 15px;
-  border-radius: 10px;
   text-align: center;
+  border-radius: 10px;
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
-
-.plan-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
 .action-buttons {
   position: absolute;
   top: 20px;
   right: 20px;
   display: flex;
   gap: 10px;
+}
+.list-button {
+  margin-top: 5px;
 }
 
 .action-buttons .el-button {

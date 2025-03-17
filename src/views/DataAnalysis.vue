@@ -21,7 +21,7 @@
           <li>每周健身 3 次</li>
           <li>瑜伽放松</li>
         </ul>
-        <el-button type="primary" class="btn">查看详情</el-button>
+        <el-button type="primary" class="btn" @click="gotosportdetail">查看详情</el-button>
       </div>
 
       <div class="list-card">
@@ -31,7 +31,7 @@
           <li>午餐：鸡胸肉 + 蔬菜</li>
           <li>晚餐：低碳水饮食</li>
         </ul>
-        <el-button type="primary" class="btn">查看详情</el-button>
+        <el-button type="primary" class="btn" @click="gotodietdetail">查看详情</el-button>
       </div>
     </div>
 
@@ -131,6 +131,13 @@ export default {
     editInfo() {
       alert("编辑个人信息功能开发中...");
     },
+    gotosportdetail(){
+      this.$router.push("/user/meal")
+    },
+    gotodietdetail(){
+      this.$router.push("/user/exercise")
+    }
+    
   },
 };
 </script>

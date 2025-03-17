@@ -1,60 +1,93 @@
 <template>
   <div class="diet-plans-container">
-    <!-- 侧边栏 -->
     <div class="sidebar">
       <h3>分类</h3>
       <ul>
-        <li :class="{ active: selectedCategory === '进行中的计划' }" @click="selectCategory('进行中的计划')">
+        <li
+          :class="{ active: selectedCategory === '进行中的计划' }"
+          @click="selectCategory('进行中的计划')"
+        >
           进行中的计划
         </li>
-        <li :class="{ active: selectedCategory === '推荐计划' }" @click="selectCategory('推荐计划')">
+        <li
+          :class="{ active: selectedCategory === '推荐计划' }"
+          @click="selectCategory('推荐计划')"
+        >
           推荐计划
         </li>
-        <li :class="{ active: selectedCategory === '我的计划' }" @click="selectCategory('我的计划')">
+        <li
+          :class="{ active: selectedCategory === '我的计划' }"
+          @click="selectCategory('我的计划')"
+        >
           我的计划
         </li>
       </ul>
     </div>
 
-    <!-- 主要内容区域 -->
     <div class="diet-plans">
-      <h2 v-if="selectedCategory === '推荐计划'">🥗 推荐计划</h2>
-      <h2 v-if="selectedCategory === '我的计划'">🥗 我的计划</h2>
-      <h2 v-if="selectedCategory === '进行中的计划'">🥗 进行中的计划</h2>
+      <h2>🥗 {{ selectedCategory }}</h2>
       <div class="plan-list">
-        <el-card v-for="(plan, index) in filteredPlans" :key="index" class="plan-card">
-          <div class="plan-title">{{ plan.title }}</div>
+        <el-card v-for="(plan, index) in plans" :key="index" class="plan-card">
+          <div class="plan-title">{{ plan.planName }}</div>
           <p>{{ plan.description }}</p>
-          <el-button v-if="selectedCategory === '推荐计划'" type="primary" @click="confirmPlan(plan)">
-            设定为我的计划
-          </el-button>
+          <div class="card-actions">
+            <el-button
+              v-if="selectedCategory === '推荐计划'"
+              type="primary"
+              @click="confirmPlan(plan)"
+            >
+              设定为我的计划
+            </el-button>
+            <el-button
+              v-if="selectedCategory === '我的计划'"
+              type="warning"
+              @click="editPlan(plan)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              v-if="selectedCategory === '我的计划'"
+              type="danger"
+              @click="deletePlan(plan)"
+            >
+              删除
+            </el-button>
+            <el-button
+              style="margin-top: 5px"
+              v-if="selectedCategory === '我的计划'"
+              type="primary"
+              @click="confirmPlan(plan)"
+            >
+              设定为我的计划
+            </el-button>
+          </div>
         </el-card>
       </div>
       <div class="action-buttons">
-      <el-button type="danger" @click="openMealDialog">添加自定义计划</el-button>
-    </div>
+        <el-button type="danger" @click="openMealDialog"
+          >添加自定义计划</el-button
+        >
+      </div>
     </div>
 
-    <!-- 确认弹窗 -->
     <el-dialog :visible.sync="dialogVisible" title="确认选择" width="40%">
       <p>
-        你确定要设定 <strong>{{ selectedPlan ? selectedPlan.title : "" }}</strong> 为你的膳食计划吗？
+        你确定要设定
+        <strong>{{ selectedPlan ? selectedPlan.planName : "" }}</strong>
+        为你的膳食计划吗？
       </p>
       <span slot="footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="setMyPlan">确认</el-button>
       </span>
     </el-dialog>
-    
-     <!-- 运动计划选择组件 -->
-     <SelectMealPlan
-      ref="selectMealPlan"
-    />
+    <SelectMealPlan ref="selectMealPlan" @add-plan="fetchPlans" />
   </div>
 </template>
 
 <script>
-import SelectMealPlan from "@/components/SelectMealPlan.vue"; 
+import SelectMealPlan from "@/components/SelectMealPlan.vue";
+import api from "../api";
 
 export default {
   components: {
@@ -64,25 +97,44 @@ export default {
     return {
       dialogVisible: false,
       selectedPlan: null,
-      selectedCategory: "推荐计划", // 默认选中推荐计划
-      plans: [
-        { title: "低脂高蛋白餐", description: "适合减脂人士。", isMyPlan: false },
-        { title: "轻食沙拉餐", description: "新鲜蔬菜搭配优质蛋白。", isMyPlan: false },
-        { title: "高热量增肌餐", description: "帮助肌肉生长和恢复。", isMyPlan: false },
-        { title: "力量训练餐", description: "专为健身者设计的膳食。", isMyPlan: false },
-        { title: "均衡营养套餐", description: "适合日常健康饮食。", isMyPlan: false },
-        { title: "家庭健康餐", description: "营养均衡，适合全家享用。", isMyPlan: false },
-        { title: "我的减肥餐", description: "为我专门定制的减肥餐。", isMyPlan: true },
-        { title: "我的增肌餐", description: "适合我增肌的膳食。", isMyPlan: true },
-      ],
+      selectedCategory: "推荐计划",
+      plans: [],
     };
   },
-  computed: {
-    filteredPlans() {
-      return this.plans.filter((plan) => plan.isMyPlan === (this.selectedCategory === "我的计划"));
-    },
+  watch: {
+    selectedCategory: "fetchPlans",
+  },
+  mounted() {
+    this.fetchPlans();
   },
   methods: {
+    async fetchPlans() {
+      let url = "";
+      if (this.selectedCategory === "进行中的计划") {
+        url = "/userCplan/get";
+      } else if (this.selectedCategory === "推荐计划") {
+        url = "/plan/getSuggestPlan";
+      } else if (this.selectedCategory === "我的计划") {
+        url = "/plan/list";
+      }
+      try {
+        const response = await api.get(url);
+        if (url === "/userCplan/get") {
+          if (response.data && response.data.planVo) {
+            this.$nextTick(() => {
+              this.plans = [response.data.planVo];
+            });
+          }
+        }
+        if (url === "/plan/getSuggestPlan") {
+          this.plans = response.data;
+        } else {
+          this.plans = response.rows;
+        }
+      } catch (error) {
+        console.error("获取计划失败", error);
+      }
+    },
     selectCategory(category) {
       this.selectedCategory = category;
     },
@@ -90,14 +142,51 @@ export default {
       this.selectedPlan = plan;
       this.dialogVisible = true;
     },
-    setMyPlan() {
-      this.selectedPlan.isMyPlan = true;
-      this.dialogVisible = false;
+    async setMyPlan() {
+      try {
+        await api.put(`/common/setcplanByplan/${this.selectedPlan.id}`);
+        console.log(this.selectedPlan.id);
+        this.dialogVisible = false;
+        this.$message.success("计划设定成功！");
+        this.fetchPlans();
+      } catch (error) {
+        console.error("设定失败", error);
+        this.$message.error("设定失败，请重试！");
+      }
     },
-    openMealDialog(){
-      this.$refs.selectMealPlan.dialogVisible=true
+    async editPlan(plan) {
+  try {
+    const response = await api.get(`/plan/getDetail`, { params: { id: plan.id } });
+    if (response.data) {
+      this.$refs.selectMealPlan.openDialog(response.data); // 传递数据到组件
     }
+  } catch (error) {
+    console.error("获取计划详情失败", error);
+    this.$message.error("获取计划详情失败，请重试！");
+  }
+},
+    openMealDialog() {
+      console.log("打开添加计划对话框");
+      this.$refs.selectMealPlan.openDialog(); // 传递数据到组件
+    },
+    async deletePlan(plan) {
+  try {
+    await this.$confirm(`确定要删除 "${plan.planName}" 计划吗？`, "确认删除", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
 
+    await api.delete(`/plan/delete/${plan.id}`);
+    this.fetchPlans();
+    this.$message.success("计划已删除！");
+  } catch (error) {
+    if (error !== "cancel") {
+      console.error("删除计划失败", error);
+      this.$message.error("删除失败，请重试！");
+    }
+  }
+},
   },
 };
 </script>

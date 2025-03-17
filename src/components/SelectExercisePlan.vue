@@ -1,11 +1,24 @@
 <template>
-  <el-dialog title="新增运动计划" :visible.sync="dialogVisible" width="60%" @open="fetchCategories">
+  <el-dialog
+    title="新增运动计划"
+    :visible.sync="dialogVisible"
+    width="60%"
+    @open="fetchCategories"
+  >
     <div class="dialog-container">
       <!-- 左侧分类菜单 -->
-      <el-menu :default-active="selectedCategoryId ? selectedCategoryId.toString() : ''" 
-               @select="handleCategorySelect" 
-               class="category-menu">
-        <el-menu-item v-for="category in categories" :key="category.id" :index="category.id.toString()">
+      <el-menu
+        :default-active="
+          selectedCategoryId ? selectedCategoryId.toString() : ''
+        "
+        @select="handleCategorySelect"
+        class="category-menu"
+      >
+        <el-menu-item
+          v-for="category in categories"
+          :key="category.id"
+          :index="category.id.toString()"
+        >
           {{ category.ebName }}
         </el-menu-item>
       </el-menu>
@@ -23,19 +36,36 @@
 
         <div class="sports-list" v-if="selectedCategoryId">
           <el-row :gutter="20">
-            <el-col v-for="sport in sports" :key="sport.id" :span="8" class="sport-card">
+            <el-col
+              v-for="sport in sports"
+              :key="sport.id"
+              :span="8"
+              class="sport-card"
+            >
               <el-card shadow="hover">
                 <div class="sport-name">{{ sport.esName }}</div>
-                <el-image :src="sport.image || defaultLogo" class="sport-logo" fit="contain" lazy />
-                <el-button type="primary" size="mini" @click="toggleSport(sport)">
-                  {{ selectedSports.includes(sport) ? "已添加" : "添加" }}
+                <el-image
+                  :src="sport.image || defaultLogo"
+                  class="sport-logo"
+                  fit="contain"
+                  lazy
+                />
+                <el-button
+                  type="primary"
+                  size="mini"
+                  @click="toggleSport(sport)"
+                >
+                  {{ sport.isSelected ? "已添加" : "添加" }}
                 </el-button>
               </el-card>
             </el-col>
           </el-row>
         </div>
 
-        <el-button type="success" @click="savePlan" class="save-button">保存</el-button>
+        <div class="button-container">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="success" @click="savePlan">保存</el-button>
+        </div>
       </div>
     </div>
   </el-dialog>
@@ -50,12 +80,21 @@ export default {
       dialogVisible: false,
       categories: [], // 存储所有分类
       sports: [], // 当前选中分类的运动类型
-      eSmallTypeIds:{},
+      eSmallTypeIds: {},
       selectedCategoryId: null, // 当前选中的分类 ID
       selectedSports: [], // 选中的运动类型
       planName: "",
       planDescription: "",
-      defaultLogo: require("@/assets/avatar.png"), // 默认图片
+      defaultLogo: require("@/assets/avatar.png"),
+      dialogVisible: false,
+      isEditing: false,
+      editedPlanId: null, // 存储正在编辑的计划 ID
+      categories: [],
+      sports: [],
+      selectedCategoryId: null,
+      selectedSports: [],
+      planName: "",
+      planDescription: "", // 默认图片
     };
   },
   methods: {
@@ -73,9 +112,16 @@ export default {
     async fetchSports(categoryId) {
       if (!categoryId) return;
       try {
-        const ebigTypeId = categoryId
-        const response = await api.get("/eSmalltype/list", { params: { ebigTypeId } });
-        this.sports = response.data || []; // 只加载该分类下的运动类型
+        const response = await api.get("/eSmalltype/list", {
+          params: { ebigTypeId: categoryId },
+        });
+        const newSports = response.data || []; // 获取该分类下的运动
+
+        // 让 `selectedSports` 里已选的运动优先显示（但不重复）
+        this.sports = newSports.map((sport) => ({
+          ...sport,
+          isSelected: this.selectedSports.some((s) => s.id === sport.id),
+        }));
       } catch (error) {
         console.error("获取运动类型失败", error);
       }
@@ -92,38 +138,94 @@ export default {
       const index = this.selectedSports.findIndex((s) => s.id === sport.id);
       if (index === -1) {
         this.selectedSports.push(sport);
+        sport.isSelected = true;
       } else {
         this.selectedSports.splice(index, 1);
+        sport.isSelected = false;
       }
     },
 
     // 保存计划
     async savePlan() {
-      if (!this.planName || !this.planDescription) {
-        this.$message.error("请填写完整的计划信息！");
-        return;
-      }
-      if (this.selectedSports.length === 0) {
-        this.$message.error("请至少选择一个运动！");
-        return;
+  if (!this.planName || !this.planDescription) {
+    this.$message.error("请填写完整的计划信息！");
+    return;
+  }
+  if (this.selectedDiets.length === 0) {
+    this.$message.error("请至少选择一个膳食计划！");
+    return;
+  }
+
+  try {
+    const requestData = {
+      planName: this.planName,
+      description: this.planDescription,
+      smallTypeIds: this.selectedDiets.map(s => s.id),
+    };
+
+    if (this.planId) {
+      // **修改操作**
+      await api.put(`/plan/update/${this.planId}`, requestData);
+      this.$message.success("计划修改成功！");
+    } else {
+      // **添加操作**
+      await api.put("/plan/add", requestData);
+      this.$message.success("计划保存成功！");
+    }
+
+    // 关闭对话框并重置数据
+    this.dialogVisible = false;
+    this.planId = null;
+    this.planName = "";
+    this.planDescription = "";
+    this.selectedDiets = [];
+    this.$emit("add-plan");  // 触发父组件更新列表
+  } catch (error) {
+    console.error("操作失败", error);
+    this.$message.error("操作失败，请重试！");
+  }
+},
+    openDialog(plan = null) {
+      // **1. 确保所有数据都重置，防止残留**
+      this.isEditing = false;
+      this.editedPlanId = null;
+      this.planName = "";
+      this.planDescription = "";
+      this.selectedSports = [];
+      this.selectedCategoryId = null;
+
+      if (plan) {
+        // **2. 编辑模式**
+        this.isEditing = true;
+        this.editedPlanId = plan.id;
+        this.planName = plan.name;
+        this.planDescription = plan.description;
+
+        // **3. Vue 不能检测数组赋值，需要用 Vue.set**
+        this.selectedSports = plan.smalltypes
+          ? JSON.parse(JSON.stringify(plan.smalltypes))
+          : [];
+
+        // **4. 确保 selectedSports 是响应式的**
+        this.selectedSports = this.selectedSports.map((sport) => ({
+          ...sport,
+          isSelected: true, // 让已选中的运动在 UI 上显示已选状态
+        }));
+
+        // **5. 选中分类**
+        if (this.selectedSports.length > 0) {
+          this.selectedCategoryId = this.selectedSports[0].ebigTypeId || null;
+        }
       }
 
-      try {
-        await api.put("/ePlan/add", {
-          ePlanName: this.planName,
-          description: this.planDescription,
-          eSmallTypeIds: this.selectedSports.map((s) => s.id),
-        });
+      // **6. 先获取分类，再获取运动**
+      this.fetchCategories().then(() => {
+        if (this.selectedCategoryId) {
+          this.fetchSports(this.selectedCategoryId);
+        }
+      });
 
-        this.$message.success("计划保存成功！");
-        this.dialogVisible = false;
-        this.planName = "";
-        this.planDescription = "";
-        this.selectedSports = [];
-      } catch (error) {
-        console.error("保存计划失败", error);
-        this.$message.error("保存失败，请重试！");
-      }
+      this.dialogVisible = true;
     },
   },
 };
@@ -173,5 +275,13 @@ export default {
 .save-button {
   width: 100%;
   margin-top: 20px;
+}
+.button-container {
+  display: flex;
+  padding: 20px;
+  position: absolute;
+  bottom: 10px;
+  right: 0;
+  background: #fff;
 }
 </style>
