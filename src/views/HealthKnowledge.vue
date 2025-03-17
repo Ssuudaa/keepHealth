@@ -13,7 +13,7 @@
     ></el-input>
 
     <!-- 分类筛选 -->
-    <div class="category-filter">
+    <!-- <div class="category-filter">
       <el-select
         v-model="selectedCategory"
         placeholder="选择分类"
@@ -26,7 +26,7 @@
           :value="category"
         />
       </el-select>
-    </div>
+    </div> -->
 
     <!-- 养生知识列表 -->
     <div
@@ -98,17 +98,6 @@ export default {
           item.title.toLowerCase().includes(query) ||
           item.summary.toLowerCase().includes(query)
       );
-      this.knowledgeIndex = this.displayedKnowledge.length;
-    },
-
-    filterByCategory() {
-      if (this.selectedCategory) {
-        this.displayedKnowledge = this.knowledgeData.filter(
-          (item) => item.category === this.selectedCategory
-        );
-      } else {
-        this.displayedKnowledge = this.knowledgeData;
-      }
       this.knowledgeIndex = this.displayedKnowledge.length;
     },
   loadMore() {

@@ -14,8 +14,8 @@
             'assistant-message': msg.from === 'assistant'
           }"
         >
-          <span>{{ msg.text }}</span>
-        </div>
+        <span v-html="msg.text.replace(/\n/g, '<br>')"></span>
+      </div>
 
         <!-- AI 等待回复时的提示 -->
         <div v-if="isThinking" class="message assistant-message">
@@ -65,6 +65,7 @@ export default {
         // 假设 API 返回 { code: 200, msg: "AI的回复" }
         if (response.code === 200) {
           this.messages.push({ from: "assistant", text: response.msg });
+          console.log(response.msg)
         } else {
           this.messages.push({ from: "assistant", text: "AI 没有正确响应，请稍后重试。" });
         }
