@@ -24,13 +24,13 @@
       </div>
 
       <el-input
-        v-model="userInput"
-        placeholder="请输入您的问题（如：如何减肥？）"
-        @keyup.enter="sendMessage"
-        clearable
-        class="input-box"
-      ></el-input>
-      <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
+  v-model="userInput"
+  placeholder="请输入您的问题（如：如何减肥？）"
+  @keyup.enter.native="sendMessage"
+  clearable
+  class="input-box"
+></el-input>
+<el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
     </div>
   </div>
 </template>
