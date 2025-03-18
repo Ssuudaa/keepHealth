@@ -9,23 +9,23 @@
       <nav>
         <router-link to="/admin/users">
           <i class="el-icon-user"></i>
-          <span v-show="!isCollapsed">用户管理</span>
+          <span v-if="!isCollapsed">用户管理</span>
         </router-link>
         <router-link to="/admin/knowledge">
           <i class="el-icon-notebook-2"></i>
-          <span v-show="!isCollapsed">设置养生知识</span>
+          <span v-if="!isCollapsed">设置养生知识</span>
         </router-link>
         <router-link to="/admin/meal">
           <i class="el-icon-food"></i>
-          <span v-show="!isCollapsed">发布膳食计划</span>
+          <span v-if="!isCollapsed">发布膳食计划</span>
         </router-link>
         <router-link to="/admin/exercise">
           <i class="el-icon-soccer"></i>
-          <span v-show="!isCollapsed">配置运动计划</span>
+          <span v-if="!isCollapsed">配置运动计划</span>
         </router-link>
         <router-link to="/admin/assistant">
           <i class="el-icon-cpu"></i>
-          <span v-show="!isCollapsed">智能助手配置</span>
+          <span v-if="!isCollapsed">计划内容配置</span>
         </router-link>
       </nav>
 
@@ -74,6 +74,8 @@ export default {
 /* 侧边栏 */
 .sidebar {
   width: 240px;
+  min-width: 240px;
+  max-width: 240px;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
@@ -89,6 +91,8 @@ export default {
 /* 折叠状态 */
 .sidebar.collapsed {
   width: 70px;
+  min-width: 70px;
+  max-width: 70px;
 }
 
 /* Logo */
@@ -135,6 +139,18 @@ nav a:hover {
 nav i {
   font-size: 22px;
   margin-right: 10px;
+}
+nav a span {
+  white-space: nowrap;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 侧边栏折叠时隐藏文字 */
+.sidebar.collapsed nav a span {
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* 折叠状态下，仅显示图标 */

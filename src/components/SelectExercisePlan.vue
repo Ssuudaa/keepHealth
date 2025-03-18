@@ -82,7 +82,6 @@ export default {
       sports: [], // 当前选中分类的运动类型
       eSmallTypeIds: {},
       selectedCategoryId: null, // 当前选中的分类 ID
-      selectedSports: [], // 选中的运动类型
       planName: "",
       planDescription: "",
       defaultLogo: require("@/assets/avatar.png"),
@@ -94,7 +93,7 @@ export default {
       selectedCategoryId: null,
       selectedSports: [],
       planName: "",
-      planDescription: "", // 默认图片
+      planDescription: "",
     };
   },
   methods: {
@@ -151,25 +150,26 @@ export default {
     this.$message.error("请填写完整的计划信息！");
     return;
   }
-  if (this.selectedDiets.length === 0) {
-    this.$message.error("请至少选择一个膳食计划！");
+  if (this.selectedSports.length === 0) {
+    this.$message.error("请至少选择一个运动计划！");
     return;
   }
 
   try {
     const requestData = {
-      planName: this.planName,
+      id:this.editedPlanId,
+      ePlanName: this.planName,
       description: this.planDescription,
-      smallTypeIds: this.selectedDiets.map(s => s.id),
+      eSmallTypeIds: this.selectedSports.map(s => s.id),
     };
-
-    if (this.planId) {
+    console.log(requestData.id)
+    if (requestData.id) {
       // **修改操作**
-      await api.put(`/plan/update/${this.planId}`, requestData);
+      await api.put(`/ePlan/update`,requestData);
       this.$message.success("计划修改成功！");
     } else {
       // **添加操作**
-      await api.put("/plan/add", requestData);
+      await api.put("/ePlan/add", requestData);
       this.$message.success("计划保存成功！");
     }
 

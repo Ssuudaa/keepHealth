@@ -60,7 +60,7 @@ export default {
       this.isThinking = true;
 
       try {
-        const response = await api.post("/chat", { input: userMessage }, { timeout: 30000 }); // 30s超时
+        const response = await api.post("/ai/chat", { input: userMessage }, { timeout: 30000 }); // 30s超时
 
         // 假设 API 返回 { code: 200, msg: "AI的回复" }
         if (response.code === 200) {
