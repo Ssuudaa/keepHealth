@@ -31,6 +31,8 @@
           <div class="plan-title">{{ plan.planName }}</div>
           <p>{{ plan.description }}</p>
           <div class="card-actions">
+            <el-button style="margin-bottom: 10px;" type="success" @click="getPlanDetail(plan)">查看计划具体内容</el-button>
+
             <el-button
               v-if="selectedCategory === '推荐计划'"
               type="primary"
@@ -81,6 +83,14 @@
         <el-button type="primary" @click="setMyPlan">确认</el-button>
       </span>
     </el-dialog>
+    <el-dialog :visible.sync="detailDialogVisible" title="计划详情" width="50%">
+      <div class="plan-detail-list">
+        <el-card v-for="(item, index) in planDetails" :key="index" class="detail-card">
+          <img :src="item.image" class="plan-image" />
+          <div class="detail-title">{{ item.name }}</div>
+        </el-card>
+      </div>
+    </el-dialog>
     <SelectMealPlan ref="selectMealPlan" @add-plan="fetchPlans" />
   </div>
 </template>
@@ -95,6 +105,7 @@ export default {
   },
   data() {
     return {
+      detailDialogVisible:false,
       dialogVisible: false,
       selectedPlan: null,
       selectedCategory: "推荐计划",
@@ -187,6 +198,16 @@ export default {
     }
   }
 },
+async getPlanDetail(plan) {
+      try {
+        const response = await api.get(`/plan/getDetail`, { params: { id: plan.id } });
+        this.planDetails = response.data.smalltypes.map(item => ({ name: item.name, image: item.image }));
+        this.detailDialogVisible = true;
+      } catch (error) {
+        console.error("获取计划详情失败", error);
+        this.$message.error("获取计划详情失败，请重试！");
+      }
+    },
   },
 };
 </script>
@@ -267,5 +288,36 @@ export default {
 
 .action-buttons .el-button {
   min-width: 140px;
+}
+.plan-detail-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; /* 控制卡片间距 */
+  justify-content: center;
+  padding: 10px;
+  max-height: 500px; /* 避免超出 */
+  overflow-y: auto; /* 允许滚动 */
+}
+
+.detail-card {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  margin: 5px; /* 额外增加间距 */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.plan-image {
+  width: 100px; /* 固定宽度 */
+  height: 100px; /* 固定高度 */
+  object-fit: cover; /* 防止图片变形 */
+  border-radius: 5px;
+}
+
+
+.detail-title {
+  margin-top: 10px;
+  font-weight: bold;
 }
 </style>

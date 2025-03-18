@@ -101,20 +101,6 @@ export default {
   }
 },
 
-    // 搜索功能
-    searchKnowledge() {
-      const query = this.searchQuery.trim().toLowerCase();
-      if (!query) {
-        this.displayedKnowledge = [...this.knowledgeData];
-        return;
-      }
-
-      this.displayedKnowledge = this.knowledgeData.filter(
-        (item) =>
-          item.title.toLowerCase().includes(query) ||
-          item.summary.toLowerCase().includes(query)
-      );
-    },
 
     // 触底加载更多数据
     loadMore() {
@@ -135,6 +121,35 @@ export default {
       this.dialogTitle = "";
       this.dialogContent = "";
     },
+    async searchKnowledge() {
+    const query = this.searchQuery.trim();
+    
+    if (!query) {
+      // 如果搜索框为空，恢复全部数据
+      this.displayedKnowledge = [...this.knowledgeData];
+      return;
+    }
+
+    try {
+      const response = await api.get("/admin/getByname", {
+        params: { name: query },
+      });
+
+      if (response && response.length > 0) {
+        this.displayedKnowledge = response.map(item => ({
+          id: item.id,
+          title: item.name,
+          summary: item.note ? item.note.split("。")[0] + "。" : "",
+          fullNote: item.note || "",
+        }));
+      } else {
+        this.displayedKnowledge = [];
+      }
+    } catch (error) {
+      console.error("搜索失败", error);
+      this.$message.error("搜索失败，请稍后重试");
+    }
+  },
   },
 };
 </script>

@@ -24,7 +24,7 @@
         <el-card v-for="(plan, index) in displayedPlans" :key="index" class="plan-card">
           <div class="plan-title">{{ plan.EPlanName }}</div>
           <p>{{ plan.description }}</p>
-          
+          <el-button class="list-button" type="primary" @click="getPlanDetail(plan)">查看计划具体内容</el-button>
           <el-button v-if="activeCategory !== '进行中的计划' && activeCategory !=='推荐计划'" class="list-button" type="primary" @click="editPlan(plan)">编辑</el-button>
           <el-button v-if="activeCategory !== '进行中的计划' && activeCategory !=='推荐计划'" class="list-button" type="danger" @click="deletePlan(plan)">删除</el-button>
           <el-button v-if="activeCategory !== '进行中的计划'" class="list-button" type="success" @click="confirmPlan(plan)">设为当前计划</el-button>
@@ -39,6 +39,15 @@
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="setMyPlan">确认</el-button>
       </span>
+    </el-dialog>
+
+    <el-dialog :visible.sync="detailDialogVisible" title="计划详情" width="50%">
+      <div class="plan-detail-list">
+        <el-card v-for="(item, index) in planDetails" :key="index" class="detail-card">
+          <img :src="item.image" class="plan-image" />
+          <div class="detail-title">{{ item.name }}</div>
+        </el-card>
+      </div>
     </el-dialog>
 
     <!-- 右上角按钮 -->
@@ -64,6 +73,7 @@ export default {
   },
   data() {
     return {
+      detailDialogVisible:false,
       dialogVisible: false,
       editDialogVisible: false,
       selectedPlan: null,
@@ -89,6 +99,16 @@ export default {
     }
   },
   methods: {
+    async getPlanDetail(plan) {
+      try {
+        const response = await api.get(`/ePlan/getDetail`, { params: { id: plan.id } });
+        this.planDetails = response.data.smalltypes.map(item => ({ name: item.name, image: item.image }));
+        this.detailDialogVisible = true;
+      } catch (error) {
+        console.error("获取计划详情失败", error);
+        this.$message.error("获取计划详情失败，请重试！");
+      }
+    },
     async fetchPlans() {
       let apiUrl = "";
     if (this.activeCategory === "推荐计划") {
@@ -260,5 +280,36 @@ export default {
 
 .action-buttons .el-button {
   min-width: 140px;
+}
+.plan-detail-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; /* 控制卡片间距 */
+  justify-content: center;
+  padding: 10px;
+  max-height: 500px; /* 避免超出 */
+  overflow-y: auto; /* 允许滚动 */
+}
+
+.detail-card {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  margin: 5px; /* 额外增加间距 */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.plan-image {
+  width: 100px; /* 固定宽度 */
+  height: 100px; /* 固定高度 */
+  object-fit: cover; /* 防止图片变形 */
+  border-radius: 5px;
+}
+
+
+.detail-title {
+  margin-top: 10px;
+  font-weight: bold;
 }
 </style>

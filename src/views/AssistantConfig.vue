@@ -40,6 +40,20 @@
                     @click="openEditDietBigDialog(row)"
                     >编辑大类</el-button
                   >
+                  <el-popconfirm
+                    title="确定要删除该膳食大类吗？"
+                    @confirm="deleteDietBigType(row.id)"
+                  >
+                    <template #reference>
+                      <el-button
+                        type="success"
+                        size="mini"
+                        style="margin-left: -1px"
+                      >
+                        删除大类
+                      </el-button>
+                    </template>
+                  </el-popconfirm>
                   <el-button
                     type="primary"
                     size="mini"
@@ -107,6 +121,20 @@
                     @click="openEditExerciseBigDialog(row)"
                     >编辑大类</el-button
                   >
+                  <el-popconfirm
+                    title="确定要删除该运动大类吗？"
+                    @confirm="deleteExerciseBigType(row.id)"
+                  >
+                    <template #reference>
+                      <el-button
+                        type="success"
+                        size="mini"
+                        style="margin-left: -1px"
+                      >
+                        删除大类
+                      </el-button>
+                    </template>
+                  </el-popconfirm>
                   <el-button
                     type="primary"
                     size="mini"
@@ -633,6 +661,16 @@ export default {
         await api.delete(`/eBigtype/delete/${id}`);
         this.$message.success("删除成功！");
         this.fetchExerciseList(); // 重新获取数据，更新页面
+      } catch (error) {
+        console.error("删除失败", error);
+        this.$message.error("删除失败，请重试！");
+      }
+    },
+    async deleteDietBigType(id) {
+      try {
+        await api.delete(`/bigtype/delete/${id}`);
+        this.$message.success("删除成功！");
+        this.fetchFoodList(); // 重新获取数据，更新页面
       } catch (error) {
         console.error("删除失败", error);
         this.$message.error("删除失败，请重试！");
