@@ -1,7 +1,7 @@
 <template>
   <div class="exercise-plan-management">
     <!-- 搜索框 -->
-    <div class="search-bar">
+    <!-- <div class="search-bar">
       <el-input
         v-model="searchQuery"
         placeholder="搜索计划名称"
@@ -14,7 +14,7 @@
         >搜索</el-button
       >
       <el-button @click="resetFilters" type="warning">重置</el-button>
-    </div>
+    </div> -->
 
     <el-button @click="addExercisePlan()" type="primary" class="add-button"
       >新增运动计划</el-button
@@ -190,7 +190,10 @@ export default {
 .exercise-plan-management {
   padding: 20px;
 }
-
+.add-button {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
 .search-bar {
   display: flex;
   align-items: center;

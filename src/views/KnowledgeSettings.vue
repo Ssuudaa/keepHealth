@@ -1,7 +1,7 @@
 <template>
   <div class="health-knowledge-management">
     <!-- 搜索框 -->
-    <div class="search-bar">
+    <!-- <div class="search-bar">
       <el-input
         v-model="searchQuery"
         placeholder="搜索标题"
@@ -19,7 +19,7 @@
         >搜索</el-button
       >
       <el-button @click="resetFilters" type="warning">重置</el-button>
-    </div>
+    </div> -->
 
     <!-- 新增养生知识按钮 -->
     <el-button @click="addHealthKnowledge" type="primary" class="add-button"
@@ -217,10 +217,6 @@ export default {
 .search-input {
   margin-right: 20px;
   width: 200px;
-}
-
-.el-button {
-  margin-left: 10px;
 }
 
 .add-button {

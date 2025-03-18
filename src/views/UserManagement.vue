@@ -1,7 +1,7 @@
 <template>
   <div class="user-management">
     <!-- 搜索框 -->
-    <div class="search-bar">
+    <!-- <div class="search-bar">
       <el-input
         v-model="searchQuery"
         placeholder="搜索用户名"
@@ -15,7 +15,7 @@
         >搜索</el-button
       >
       <el-button @click="reset" type="primary">重置</el-button>
-    </div>
+    </div> -->
 
     <!-- 用户表格 -->
     <el-table :data="currentPageUsers" border>

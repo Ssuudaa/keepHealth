@@ -3,7 +3,7 @@
     <SelectMealPlan ref="selectMealPlan" @add-plan="fetchDietPlans" />
 
     <!-- 搜索框 -->
-    <div class="search-bar">
+    <!-- <div class="search-bar">
       <el-input
         v-model="searchQuery"
         placeholder="搜索计划名称"
@@ -13,7 +13,7 @@
         >搜索</el-button
       >
       <el-button @click="resetFilters" type="warning">重置</el-button>
-    </div>
+    </div> -->
 
     <!-- 新增膳食计划按钮 -->
     <el-button @click="addDietPlan" type="primary" class="add-button"
