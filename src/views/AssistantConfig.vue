@@ -40,23 +40,10 @@
                     @click="openEditDietBigDialog(row)"
                     >编辑大类</el-button
                   >
-                  <el-popconfirm
-                    title="确定要删除该运动大类吗？"
-                    @confirm="deleteExerciseBigType(category.id)"
-                  >
-                    <template #reference>
-                      <el-button
-                        type="success"
-                        size="mini"
-                        style="margin-left: -1px"
-                      >
-                        删除大类
-                      </el-button>
-                    </template>
-                  </el-popconfirm>
                   <el-button
                     type="primary"
                     size="mini"
+                    style="margin-left: -1px"
                     @click="openDietAddDialog(row)"
                     >添加小类</el-button
                   >
@@ -120,25 +107,10 @@
                     @click="openEditExerciseBigDialog(row)"
                     >编辑大类</el-button
                   >
-                  <el-popconfirm
-                    title="确定要删除该运动大类吗？"
-                    @confirm="deleteExerciseBigType(category.id)"
-                  >
-                    <template #reference>
-                      <el-button
-                        type="success"
-                        size="mini"
-                        style="margin-left: -1px"
-                      >
-                        删除大类
-                      </el-button>
-                    </template>
-                  </el-popconfirm>
-
                   <el-button
                     type="primary"
                     size="mini"
-                    style="margin-left: -4px"
+                    style="margin-left: -1px"
                     @click="openSportAddDialog(row)"
                     >添加小类</el-button
                   >
