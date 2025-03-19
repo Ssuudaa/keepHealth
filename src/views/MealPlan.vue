@@ -168,7 +168,7 @@ export default {
     async editPlan(plan) {
   try {
     const response = await api.get(`/plan/getDetail`, { params: { id: plan.id } });
-    if (response.data) {
+    if (response.code===200) {
       this.$refs.selectMealPlan.openDialog(response.data); // 传递数据到组件
     }
   } catch (error) {
