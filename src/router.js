@@ -27,7 +27,7 @@
 
   // ✅ **先创建 router 实例**
   const router = new Router({
-    mode: "history",
+    mode: "hash",
     base: process.env.BASE_URL,
     routes: [
       { path: "/", component: Landing },
