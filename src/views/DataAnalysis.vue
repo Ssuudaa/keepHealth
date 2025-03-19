@@ -21,7 +21,10 @@
           <li>{{ "计划名称:" + sportPlanDetail.EPlanName }}</li>
           <li>{{ "计划描述:" + sportPlanDetail.description }}</li>
         </ul>
-        <el-button type="primary" class="btn" @click="getEPlanDetail(sportPlanDetail)"
+        <el-button
+          type="primary"
+          class="btn"
+          @click="getEPlanDetail(sportPlanDetail)"
           >查看详情</el-button
         >
       </div>
@@ -52,23 +55,39 @@
 
     <el-dialog :visible.sync="detailDialogVisible" title="计划详情" width="50%">
       <div class="plan-detail-list">
-        <el-card v-for="(item, index) in planDetails" :key="index" class="detail-card">
+        <el-card
+          v-for="(item, index) in planDetails"
+          :key="index"
+          class="detail-card"
+        >
           <img :src="item.image" class="plan-image" />
           <div class="detail-title">{{ item.name }}</div>
         </el-card>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="infoDialogVisible" title="修改个人信息" width="40%">
+    <el-dialog
+      :visible.sync="infoDialogVisible"
+      title="修改个人信息"
+      width="40%"
+    >
       <el-form label-width="80px">
         <el-form-item label="体重">
           <el-input v-model="personalInfo.weight" type="number" suffix="kg" />
         </el-form-item>
         <el-form-item label="血糖">
-          <el-input v-model="personalInfo.bloodSugar" type="number" suffix="mmol/L" />
+          <el-input
+            v-model="personalInfo.bloodSugar"
+            type="number"
+            suffix="mmol/L"
+          />
         </el-form-item>
         <el-form-item label="尿酸">
-          <el-input v-model="personalInfo.uricAcid" type="number" suffix="μmol/L" />
+          <el-input
+            v-model="personalInfo.uricAcid"
+            type="number"
+            suffix="μmol/L"
+          />
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -84,15 +103,19 @@
         <div ref="lineChart" class="chart"></div>
       </div>
       <div class="chart-box">
-  <h3>计划打卡日历</h3>
-  <el-calendar v-model="calendarDate">
-    <template slot="dateCell" slot-scope="{ date, data }">
-      <div :class="{'marked-day': isMarked(date)}">
-        {{ data.day }}
+        <h3>计划打卡日历</h3>
+        <el-button size="mini" type="danger" round @click="signin"
+          >计划打卡</el-button
+        >
+        <el-calendar v-model="calendarDate">
+          <template slot="dateCell" slot-scope="{ date, data }">
+            <div>
+              {{ data.day }}
+              <div v-if="isMarked(date)" class="check-in-label">已打卡</div>
+            </div>
+          </template>
+        </el-calendar>
       </div>
-    </template>
-  </el-calendar>
-</div>
     </div>
   </div>
 </template>
@@ -103,7 +126,8 @@ import api from "../api";
 export default {
   data() {
     return {
-      infoDialogVisible:false,
+      planDetails:[],
+      infoDialogVisible: false,
       personalInfo: {
         weight: 0,
         bloodSugar: 0,
@@ -113,33 +137,29 @@ export default {
       dialogTitle: "",
       planDetail: [],
       sportPlanDetail: [],
-      planCommon:"",
-      descriptionCommon:"",
-      detailDialogVisible:false,
+      planCommon: "",
+      descriptionCommon: "",
+      detailDialogVisible: false,
       calendarDate: new Date(),
-    markedDates: ["2025-03-10", "2025-03-11"], // 这里存储打卡的日期
+      markedDates: [], // 这里存储打卡的日期
     };
   },
   created() {
-    this.fetchPersonalInfo();
     this.fetchAllPlan();
-    this.getPersonalInfo()
+    this.getPersonalInfo();
+    this.fetchMonthData(new Date())
   },
   mounted() {
     this.initLineChart();
     this.initCalendarChart();
   },
+  watch: {
+  // 监听 calendarDate 变化，获取新的月份数据
+  calendarDate(calendarDate) {
+    this.fetchMonthData(calendarDate);
+  }
+},
   methods: {
-    async fetchPersonalInfo() {
-      try {
-        const response = await api.get("/api/personalInfo");
-        if (response.code === 0) {
-          this.personalInfo = response.data.data;
-        }
-      } catch (error) {
-        console.error("获取个人信息失败", error);
-      }
-    },
     async fetchAllPlan() {
       try {
         const response = await api.get("/userCplan/get");
@@ -155,26 +175,27 @@ export default {
       try {
         const response = await api.get("/userCplan/get");
         if (response.code === 200) {
-          this.planCommon = response.data.planVo.planName
+          this.planCommon = response.data.planVo.planName;
           this.descriptionCommon = response.data.planVo.description;
         }
       } catch (error) {
         console.error(error);
       }
       this.dialogTitle = "进行中的膳食计划详情";
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     async fetchSportPlan() {
       try {
         const response = await api.get("/userCplan/get");
         if (response.code === 200) {
-          this.planCommon = response.data.EPlanVo.EPlanName
-          this.descriptionCommon = response.data.EPlanVo.description;        }
+          this.planCommon = response.data.EPlanVo.EPlanName;
+          this.descriptionCommon = response.data.EPlanVo.description;
+        }
       } catch (error) {
         console.error(error);
       }
       this.dialogTitle = "进行中的运动计划详情";
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
     async getPersonalInfo() {
       try {
@@ -194,37 +215,37 @@ export default {
         this.infoDialogVisible = false;
         this.getPersonalInfo();
       } catch (error) {
-        console.error("更新个人信息失败", error);
-        this.$message.error("更新失败，请重试！");
+        console.error("更新个人信息失败", error.response.data.msg);
+        this.$message.error(error.response.data.msg);
       }
     },
     initLineChart() {
-  const chart = echarts.init(this.$refs.lineChart);
-  const option = {
-    grid: {
-      left: "10%",   // 左侧间距
-      right: "10%",  // 右侧间距
-      top: "10%",    // 顶部间距
-      bottom: "10%", // 底部间距，减少空白
-      containLabel: true
+      const chart = echarts.init(this.$refs.lineChart);
+      const option = {
+        grid: {
+          left: "10%", // 左侧间距
+          right: "10%", // 右侧间距
+          top: "10%", // 顶部间距
+          bottom: "10%", // 底部间距，减少空白
+          containLabel: true,
+        },
+        xAxis: {
+          type: "category",
+          data: ["周一", "周二", "周三", "周四", "周五"],
+        },
+        yAxis: { type: "value" },
+        series: [
+          {
+            type: "line",
+            data: [70, 69, 68, 67, 66],
+            itemStyle: { color: "#4CAF50" },
+            lineStyle: { width: 3 }, // 让线更粗
+            symbolSize: 8, // 让点更大
+          },
+        ],
+      };
+      chart.setOption(option);
     },
-    xAxis: {
-      type: "category",
-      data: ["周一", "周二", "周三", "周四", "周五"],
-    },
-    yAxis: { type: "value" },
-    series: [
-      {
-        type: "line",
-        data: [70, 69, 68, 67, 66],
-        itemStyle: { color: "#4CAF50" },
-        lineStyle: { width: 3 }, // 让线更粗
-        symbolSize: 8, // 让点更大
-      },
-    ],
-  };
-  chart.setOption(option);
-},
     initCalendarChart() {
       const chart = echarts.init(this.$refs.calendarChart);
       const option = {
@@ -255,8 +276,13 @@ export default {
     },
     async getPlanDetail(plan) {
       try {
-        const response = await api.get(`/plan/getDetail`, { params: { id: plan.id } });
-        this.planDetails = response.data.smalltypes.map(item => ({ name: item.name, image: item.image }));
+        const response = await api.get(`/plan/getDetail`, {
+          params: { id: plan.id },
+        });
+        this.planDetails = response.data.smalltypes.map((item) => ({
+          name: item.name,
+          image: item.image,
+        }));
         this.detailDialogVisible = true;
       } catch (error) {
         console.error("获取计划详情失败", error);
@@ -265,8 +291,13 @@ export default {
     },
     async getEPlanDetail(plan) {
       try {
-        const response = await api.get(`/ePlan/getDetail`, { params: { id: plan.id } });
-        this.planDetails = response.data.smalltypes.map(item => ({ name: item.name, image: item.image }));
+        const response = await api.get(`/ePlan/getDetail`, {
+          params: { id: plan.id },
+        });
+        this.planDetails = response.data.smalltypes.map((item) => ({
+          name: item.name,
+          image: item.image,
+        }));
         this.detailDialogVisible = true;
       } catch (error) {
         console.error("获取计划详情失败", error);
@@ -274,13 +305,48 @@ export default {
       }
     },
     isMarked(date) {
-    const formattedDate = this.formatDate(date);
-    return this.markedDates.includes(formattedDate);
+      const formattedDate = this.formatDate(date); // 把 date 转换为 YYYY-MM-DD
+  return this.markedDates.some((markedDate) => {
+    return this.formatDate(markedDate) === formattedDate;
+  });
+},
+    async signin() {
+      try {
+        const response = await api.put("/common/signin");
+        if (response.code === 200) {
+          this.$message.success("打卡成功");
+        }
+      } catch (error) {
+        this.$message.error(error.response.data.msg);
+      }
+    },
+    formatMonth(date) {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const d = new Date(date);
+    return monthNames[d.getMonth()]; // 获取英文月份
   },
+
+  // 获取某个月份的打卡数据
+  async fetchMonthData(date) {
+    const monthStr = this.formatMonth(date);
+    try {
+      const response = await api.get(`/signin/getmonth`, { params: { str: monthStr } });
+      if (response) {
+        // 提取返回数据中的日期字段，并格式化
+        this.markedDates = response
+        .filter(item => item.isSignIn) // 只保留 isSignIn 为 true 的数据
+        .map(item => item.dateTime);
+        console.log(this.markedDates)
+      }
+    } catch (error) {
+      console.error("获取打卡数据失败", error);
+    }
+  },
+  // 格式化日期为 YYYY-MM-DD
   formatDate(date) {
     const d = new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  },
+  }
   },
 };
 </script>
@@ -377,7 +443,6 @@ ul {
   border-radius: 5px;
 }
 
-
 .detail-title {
   margin-top: 10px;
   font-weight: bold;
@@ -391,5 +456,14 @@ ul {
   text-align: center;
   line-height: 24px;
   display: inline-block;
+}
+.check-in-label {
+  font-size: 14px;
+  color: #60b237;
+  background: #f0f9eb;
+  padding: 2px 5px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 3px;
 }
 </style>

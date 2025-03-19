@@ -12,17 +12,17 @@
     </div>
     <div class="navbar-right">
       <el-avatar size="small" :src="require('@/assets/avatar.png')"></el-avatar>
-      <el-dropdown trigger="click">
+      <!-- <el-dropdown trigger="click">
         <span class="el-dropdown-link">
           <i class="el-icon-caret-bottom"></i>
-        </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-if="userRole === '0'" @click.native="openPasswordDialog">
+        </span> -->
+        <!-- <el-dropdown-menu slot="dropdown"> -->
+          <!-- <el-dropdown-item v-if="userRole === '0'" @click.native="openPasswordDialog">
             修改个人密码
-          </el-dropdown-item>
-          <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+          </el-dropdown-item> -->
+          <el-dropdown-item @click.native="logout" class="logout-item">退出</el-dropdown-item>
+        <!-- </el-dropdown-menu> -->
+      <!-- </el-dropdown> -->
     </div>
 
     <!-- 🔹 修改密码弹窗 -->
@@ -124,5 +124,11 @@ export default {
   cursor: pointer;
   font-size: 18px;
   margin-left: 10px;
+}
+.el-dropdown-menu__item:hover {
+  background-color: transparent !important;
+}
+::v-deep(.logout-item) {
+  color:white !important;
 }
 </style>

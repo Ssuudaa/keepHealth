@@ -55,6 +55,7 @@ import api from "../api";
 export default {
   data() {
     return {
+      fullNote:"",
       knowledgeData: [], // 所有数据
       displayedKnowledge: [], // 当前显示的数据
       searchQuery: "", // 搜索关键词
@@ -84,7 +85,7 @@ export default {
       this.knowledgeData = response.map(item => ({
         id: item.id,
         title: item.name,
-        summary: item.note ? item.note.split("。")[0] + "。" : "", // 只取第一个句号之前的内容
+        summary: item.note ? item.note.substring(0, 40)+"..." : "", // 只取第一个句号之前的内容
         fullNote: item.note || "", // 详情弹窗显示完整内容
       }));
 
@@ -112,7 +113,7 @@ export default {
     // 查看详情
     viewDetails(item) {
       this.dialogTitle = item.title;
-      this.dialogContent = item.summary; // 这里没有 content，就显示 note
+      this.dialogContent = item.fullNote; // 这里没有 content，就显示 note
       this.dialogVisible = true;
     },
 
@@ -135,13 +136,14 @@ export default {
         params: { name: query },
       });
 
-      if (response && response.length > 0) {
-        this.displayedKnowledge = response.map(item => ({
+      if (response.code===200) {
+        this.displayedKnowledge = response.data.map(item => ({
           id: item.id,
           title: item.name,
-          summary: item.note ? item.note.split("。")[0] + "。" : "",
+          summary: item.note ? item.note.substring(0, 40)+"..." : "",
           fullNote: item.note || "",
         }));
+        console.log(this.displayedKnowledge)
       } else {
         this.displayedKnowledge = [];
       }
