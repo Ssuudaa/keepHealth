@@ -100,6 +100,36 @@
     <div class="charts-container">
       <div class="chart-box">
         <h3>健康指标变化</h3>
+        <el-button-group size="mini">
+          <el-button
+            :type="timeRange === 'TM' ? 'primary' : 'default'"
+            size="mini"
+            @click="setTimeRange('TM')"
+          >
+            今月
+          </el-button>
+          <el-button
+            :type="timeRange === 'TW' ? 'primary' : 'default'"
+            size="mini"
+            @click="setTimeRange('TW')"
+          >
+            今周
+          </el-button>
+        </el-button-group>
+        <div style="margin-top: 5px">
+          <el-button type="primary" size="mini" @click="fetchChartData('SUGER')"
+            >查看血糖趋势</el-button
+          >
+          <el-button
+            type="success"
+            size="mini"
+            @click="fetchChartData('WEIGHT')"
+            >查看体重趋势</el-button
+          >
+          <el-button type="warning" size="mini" @click="fetchChartData('URIC')"
+            >查看尿酸趋势</el-button
+          >
+        </div>
         <div ref="lineChart" class="chart"></div>
       </div>
       <div class="chart-box">
@@ -126,7 +156,8 @@ import api from "../api";
 export default {
   data() {
     return {
-      planDetails:[],
+      chartData: { xAxis: [], yAxis: [] }, // 存储 API 返回的数据
+      planDetails: [],
       infoDialogVisible: false,
       personalInfo: {
         weight: 0,
@@ -142,23 +173,26 @@ export default {
       detailDialogVisible: false,
       calendarDate: new Date(),
       markedDates: [], // 这里存储打卡的日期
+      selectTime: "TM",
+      selectType: "SUGER",
     };
   },
   created() {
     this.fetchAllPlan();
     this.getPersonalInfo();
-    this.fetchMonthData(new Date())
+    this.fetchMonthData(new Date());
+    this.fetchChartData(); // 获取健康指标数据
   },
   mounted() {
     this.initLineChart();
     this.initCalendarChart();
   },
   watch: {
-  // 监听 calendarDate 变化，获取新的月份数据
-  calendarDate(calendarDate) {
-    this.fetchMonthData(calendarDate);
-  }
-},
+    // 监听 calendarDate 变化，获取新的月份数据
+    calendarDate(calendarDate) {
+      this.fetchMonthData(calendarDate);
+    },
+  },
   methods: {
     async fetchAllPlan() {
       try {
@@ -223,28 +257,50 @@ export default {
       const chart = echarts.init(this.$refs.lineChart);
       const option = {
         grid: {
-          left: "10%", // 左侧间距
-          right: "10%", // 右侧间距
-          top: "10%", // 顶部间距
-          bottom: "10%", // 底部间距，减少空白
+          left: "10%",
+          right: "10%",
+          top: "10%",
+          bottom: "10%",
           containLabel: true,
         },
         xAxis: {
           type: "category",
-          data: ["周一", "周二", "周三", "周四", "周五"],
+          data: this.chartData.xAxis, // 使用 API 获取的数据
         },
         yAxis: { type: "value" },
         series: [
           {
             type: "line",
-            data: [70, 69, 68, 67, 66],
+            data: this.chartData.yAxis, // 使用 API 获取的数据
             itemStyle: { color: "#4CAF50" },
-            lineStyle: { width: 3 }, // 让线更粗
-            symbolSize: 8, // 让点更大
+            lineStyle: { width: 3 },
+            symbolSize: 8,
           },
         ],
       };
       chart.setOption(option);
+    },
+    async fetchChartData(personEnum = this.selectType) {
+      this.selectType = personEnum; // 更新查询的指标类型
+
+      try {
+        const response = await api.get("/personalDetail/getEchartsData", {
+          params: { timeEnum: this.timeRange, personEnum: this.selectType },
+        });
+
+        if (response.code === 200) {
+          this.chartData.xAxis = response.data.xAxis; // 示例数据: ["2025-03-10", "2025-03-11", ...]
+          this.chartData.yAxis = response.data.seriesCount.map((item) => ({
+            value: item.value,
+          }));
+
+          console.log("X轴数据:", this.chartData.xAxis);
+          console.log("Y轴数据:", this.chartData.yAxis);
+          this.initLineChart(); // 渲染图表
+        }
+      } catch (error) {
+        console.error("获取健康指标数据失败", error);
+      }
     },
     initCalendarChart() {
       const chart = echarts.init(this.$refs.calendarChart);
@@ -306,10 +362,10 @@ export default {
     },
     isMarked(date) {
       const formattedDate = this.formatDate(date); // 把 date 转换为 YYYY-MM-DD
-  return this.markedDates.some((markedDate) => {
-    return this.formatDate(markedDate) === formattedDate;
-  });
-},
+      return this.markedDates.some((markedDate) => {
+        return this.formatDate(markedDate) === formattedDate;
+      });
+    },
     async signin() {
       try {
         const response = await api.put("/common/signin");
@@ -321,31 +377,57 @@ export default {
       }
     },
     formatMonth(date) {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const d = new Date(date);
-    return monthNames[d.getMonth()]; // 获取英文月份
-  },
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const d = new Date(date);
+      return monthNames[d.getMonth()]; // 获取英文月份
+    },
 
-  // 获取某个月份的打卡数据
-  async fetchMonthData(date) {
-    const monthStr = this.formatMonth(date);
-    try {
-      const response = await api.get(`/signin/getmonth`, { params: { str: monthStr } });
-      if (response) {
-        // 提取返回数据中的日期字段，并格式化
-        this.markedDates = response
-        .filter(item => item.isSignIn) // 只保留 isSignIn 为 true 的数据
-        .map(item => item.dateTime);
-        console.log(this.markedDates)
+    // 获取某个月份的打卡数据
+    async fetchMonthData(date) {
+      const monthStr = this.formatMonth(date);
+      try {
+        const response = await api.get(`/signin/getmonth`, {
+          params: { str: monthStr },
+        });
+        if (response) {
+          // 提取返回数据中的日期字段，并格式化
+          this.markedDates = response
+            .filter((item) => item.isSignIn) // 只保留 isSignIn 为 true 的数据
+            .map((item) => item.dateTime);
+        }
+      } catch (error) {
+        console.error("获取打卡数据失败", error);
       }
-    } catch (error) {
-      console.error("获取打卡数据失败", error);
+    },
+    // 格式化日期为 YYYY-MM-DD
+    formatDate(date) {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}-${String(d.getDate()).padStart(2, "0")}`;
+    },
+    handleTimeChange() {
+      this.fetchChartData();
+    },
+    setTimeRange(value) {
+    if (this.timeRange !== value) {
+      this.timeRange = value;
+      this.fetchChartData(); // 触发查询
     }
-  },
-  // 格式化日期为 YYYY-MM-DD
-  formatDate(date) {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
   },
 };
