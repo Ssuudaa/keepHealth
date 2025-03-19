@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="新增运动计划"
+    title="设定运动计划"
     :visible.sync="dialogVisible"
     width="60%"
     @open="fetchCategories"

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="新增膳食计划" :visible.sync="dialogVisible" width="60%" @open="fetchCategories">
+  <el-dialog title="设定膳食计划" :visible.sync="dialogVisible" width="60%" @open="fetchCategories">
     <div class="dialog-container">
       <!-- 左侧分类菜单 -->
       <el-menu :default-active="selectedCategoryId ? selectedCategoryId.toString() : ''" 
@@ -110,11 +110,20 @@ export default {
       }
 
       try {
+        if(this.planId){
+          await api.put('/plan/update' ,{
+          id:this.planId,
+          planName: this.planName,
+          description: this.planDescription,
+          smallTypeIds: this.selectedDiets.map(s => s.id),
+        });
+      }else{
         await api.put("/plan/add", {
           planName: this.planName,
           description: this.planDescription,
           smallTypeIds: this.selectedDiets.map(s => s.id),
         });
+      }
 
         this.$message.success("计划保存成功！");
         this.dialogVisible = false;
