@@ -182,7 +182,7 @@ export default {
         }
       } else {
         // 没有 ID，则执行新增
-        await api.post("/admin/add", this.currentHealthKnowledge);
+        const response=await api.post("/admin/add", this.currentHealthKnowledge);
         if(response.code===200){
           this.$message.success("新增成功")
         }

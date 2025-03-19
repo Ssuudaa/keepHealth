@@ -17,10 +17,11 @@
       <!-- 运动计划 -->
       <div class="list-card">
         <h3>当前运动计划</h3>
-        <ul>
-          <li>{{ "计划名称:" + sportPlanDetail.EPlanName }}</li>
-          <li>{{ "计划描述:" + sportPlanDetail.description }}</li>
+        <ul v-if="sportPlanDetail && sportPlanDetail.EPlanName">
+          <li>{{ "计划名称: " + sportPlanDetail.EPlanName }}</li>
+          <li>{{ "计划描述: " + sportPlanDetail.description }}</li>
         </ul>
+        <p v-else>当前暂无进行中的计划</p>
         <el-button
           type="primary"
           class="btn"
@@ -32,10 +33,11 @@
       <!-- 膳食计划 -->
       <div class="list-card">
         <h3>当前膳食计划</h3>
-        <ul>
-          <li>{{ "计划名称:" + planDetail.planName }}</li>
-          <li>{{ "计划描述:" + planDetail.description }}</li>
+        <ul v-if="planDetail && planDetail.planName">
+          <li>{{ "计划名称: " + planDetail.planName }}</li>
+          <li>{{ "计划描述: " + planDetail.description }}</li>
         </ul>
+        <p v-else>当前暂无进行中的计划</p>
         <el-button type="primary" class="btn" @click="getPlanDetail(planDetail)"
           >查看详情</el-button
         >
@@ -341,8 +343,7 @@ export default {
         }));
         this.detailDialogVisible = true;
       } catch (error) {
-        console.error("获取计划详情失败", error);
-        this.$message.error("获取计划详情失败，请重试！");
+        this.$message.error("当前暂无计划！");
       }
     },
     async getEPlanDetail(plan) {
@@ -356,8 +357,7 @@ export default {
         }));
         this.detailDialogVisible = true;
       } catch (error) {
-        console.error("获取计划详情失败", error);
-        this.$message.error("获取计划详情失败，请重试！");
+        this.$message.error("当前暂无计划！");
       }
     },
     isMarked(date) {
