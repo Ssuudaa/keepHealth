@@ -376,7 +376,9 @@ export default {
       try {
         const response = await api.put("/common/signin");
         if (response.code === 200) {
+          this.fetchMonthData(new Date());
           this.$message.success("打卡成功");
+          this.fetchMonthData(new Date());
         }
       } catch (error) {
         this.$message.error(error.response.data.msg);
