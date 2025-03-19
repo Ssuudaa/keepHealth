@@ -29,6 +29,7 @@
   @keyup.enter.native="sendMessage"
   clearable
   class="input-box"
+  :disabled="isThinking"
 ></el-input>
 <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
     </div>
@@ -56,11 +57,16 @@ export default {
       const userMessage = this.userInput;
       this.userInput = "";
 
+      this.$nextTick(() => {
+      const chatbox = this.$el.querySelector(".messages");
+      chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
       // 显示“正在思考...”的提示
       this.isThinking = true;
 
       try {
-        const response = await api.post("/ai/chat", { input: userMessage }, { timeout: 30000 }); // 30s超时
+        const response = await api.post("/ai/chat", { input: userMessage }, { timeout: 120000 }); // 2分钟超时
 
         // 假设 API 返回 { code: 200, msg: "AI的回复" }
         if (response.code === 200) {
@@ -126,6 +132,7 @@ export default {
   background-color: #f5f5f5;
   word-wrap: break-word;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-anchor: auto;
 }
 
 .user-message {

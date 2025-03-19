@@ -108,7 +108,7 @@ export default {
       detailDialogVisible:false,
       dialogVisible: false,
       selectedPlan: null,
-      selectedCategory: "推荐计划",
+      selectedCategory: "我的计划",
       plans: [],
     };
   },

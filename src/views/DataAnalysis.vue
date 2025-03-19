@@ -277,6 +277,12 @@ export default {
             itemStyle: { color: "#4CAF50" },
             lineStyle: { width: 3 },
             symbolSize: 8,
+            label: {
+          show: true, // 显示数值
+          position: "top", // 位置：数据点上方
+          color: "#333", // 颜色
+          fontSize: 12, // 字体大小
+        },
           },
         ],
       };

@@ -511,6 +511,8 @@ export default {
       }
     },
     openSportAddDialog(plan) {
+      this.newExerciseSubCategory='';
+      this.sportImage='';
       this.exerciseSubDialogVisible = true;
       this.ebigId = plan.id;
     },
@@ -536,6 +538,8 @@ export default {
       }
     },
     openDietAddDialog(plan) {
+      this.newFoodSubCategory='';
+      this.dietImage='';
       this.foodSubDialogVisible = true;
       this.dietBigId = plan.id;
     },
