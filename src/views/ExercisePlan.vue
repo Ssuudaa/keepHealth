@@ -78,7 +78,7 @@ export default {
       editDialogVisible: false,
       selectedPlan: null,
       editedPlan: {},
-      activeCategory: "进行中的计划",
+      activeCategory: "我的计划",
       categories: ["进行中的计划", "推荐计划", "我的计划"],
       ongoingPlans: [],
       suggestedPlans: [],
